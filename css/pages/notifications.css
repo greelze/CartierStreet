@@ -1,0 +1,2 @@
+/* notifications page styles */
+.nr{display:flex;gap:12px;width:100%;padding:13px 12px;border-bottom:1px solid var(--ln);align-items:flex-start}.nr.un{background:#F5F8FF}.nr .dot{width:8px;height:8px;border-radius:9px;background:var(--blue);margin-top:9px;flex:none}.nr .dot.z{background:none}

@@ -1,0 +1,21 @@
+/* settings page styles */
+.prof{display:flex;gap:16px;align-items:center;padding:14px 0}.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--ln)}
+.tr{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln)}.tr .b{flex:1}
+/* artist links */
+.alk{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--ln)}
+.alk .alb{flex:1;min-width:0}.alk .alb>b{display:block;margin-bottom:5px}
+.alk .av.lab{background:var(--b)}
+.lks{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lk{display:inline-block;padding:5px 11px;border:1px solid var(--ln);border-radius:99px;background:var(--soft);font-size:13.5px;font-weight:600;color:var(--ink);text-decoration:none}
+.lk:hover{border-color:var(--b);color:var(--b)}
+.alk.edit{display:block;padding:16px;margin:10px 0;border:1px solid var(--ln);border-radius:14px;background:var(--soft)}
+.alh{margin-bottom:10px}
+.lkf{display:block;margin-bottom:8px}.lkf b{display:block;font-size:13px;color:var(--t2);margin-bottom:4px}
+
+/* link + copy button, joined into one pill */
+.lkw{display:inline-flex;align-items:center;border:1px solid var(--ln);border-radius:99px;background:var(--soft);overflow:hidden}
+.lkw .lk{border:0;border-radius:0;background:none}
+.lkw:hover{border-color:var(--b)}
+.cpy{display:grid;place-items:center;width:32px;align-self:stretch;border-left:1px solid var(--ln);color:var(--t2)}
+.cpy:hover{background:#fff;color:var(--b)}
+.cpy svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}

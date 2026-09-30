@@ -1,0 +1,3 @@
+/* home page styles (the big cards are shared with My Day, see css/base.css) */
+.tb{display:flex;gap:10px;flex-wrap:wrap}
+.tb input{max-width:320px}.tb select{width:auto}

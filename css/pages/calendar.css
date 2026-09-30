@@ -1,0 +1,22 @@
+/* calendar page styles
+   The grid always fits the screen: 7 equal columns that can shrink as small as needed. */
+.cg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.dw{text-align:center;font-size:12px;color:var(--t3);padding:6px 0}
+.cd{min-width:0;overflow:hidden;aspect-ratio:1.5;border-radius:10px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--ln);background:#fff;font-weight:500}
+.cd:hover{background:var(--soft)}.cd.mu{color:#C2BFC8;border-color:transparent}.cd.td{color:var(--blue);font-weight:700}.cd.sel{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cd span:last-child{display:flex;flex-wrap:wrap;gap:3px} /* the coloured dots wrap instead of stretching the day */
+.cd i{width:6px;height:6px;border-radius:9px;display:inline-block;flex:none}
+.calh{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}.calh h1{flex:1;min-width:0;font-size:32px}
+/* wide screens: month on the left, the chosen day's list on the right */
+@media(min-width:1280px){.calwrap{display:grid;grid-template-columns:minmax(0,3fr) minmax(340px,2fr);gap:36px;align-items:start}.calday{position:sticky;top:20px}.calday>.sh:first-child{padding-top:52px}}
+/* tablets and phones: smaller month title, squarer days, smaller dots */
+@media(max-width:860px){
+ .calh h1{font-size:24px}
+ .cg{gap:2px}
+ .cd{aspect-ratio:auto;min-height:52px;padding:5px 5px 6px;border-radius:8px;font-size:14px}
+ .cd span:last-child{gap:2px}.cd i{width:5px;height:5px}
+ .dw{font-size:11px}
+ .calmain .chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -18px 6px;padding:0 18px 4px;scrollbar-width:none} /* category chips scroll on their own row */
+ .calmain .chips::-webkit-scrollbar{display:none}
+}
+@media(max-width:380px){.cd{min-height:46px;padding:4px 3px 5px;font-size:13px}.calh h1{font-size:21px}}
