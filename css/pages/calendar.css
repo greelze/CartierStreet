@@ -1,22 +1,46 @@
 /* calendar page styles
    The grid always fits the screen: 7 equal columns that can shrink as small as needed. */
-.cg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.calh{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.calh h1{flex:1;min-width:0;font-size:32px}
+.calacts{display:flex;gap:8px;margin-left:auto}
+.callead{margin:0 0 12px} /* one line under the month title (P5) */
+.cg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .dw{text-align:center;font-size:12px;color:var(--t3);padding:6px 0}
-.cd{min-width:0;overflow:hidden;aspect-ratio:1.5;border-radius:10px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid var(--ln);background:#fff;font-weight:500}
-.cd:hover{background:var(--soft)}.cd.mu{color:#C2BFC8;border-color:transparent}.cd.td{color:var(--blue);font-weight:700}.cd.sel{background:var(--ink);color:#fff;border-color:var(--ink)}
-.cd span:last-child{display:flex;flex-wrap:wrap;gap:3px} /* the coloured dots wrap instead of stretching the day */
-.cd i{width:6px;height:6px;border-radius:9px;display:inline-block;flex:none}
-.calh{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}.calh h1{flex:1;min-width:0;font-size:32px}
-/* wide screens: month on the left, the chosen day's list on the right */
-@media(min-width:1280px){.calwrap{display:grid;grid-template-columns:minmax(0,3fr) minmax(340px,2fr);gap:36px;align-items:start}.calday{position:sticky;top:20px}.calday>.sh:first-child{padding-top:52px}}
-/* tablets and phones: smaller month title, squarer days, smaller dots */
+.cd{min-width:0;overflow:hidden;min-height:118px;border-radius:10px;padding:6px 7px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--ln);background:#fff;font-weight:500;text-align:left}
+.cd:hover{background:var(--soft)}
+.cd.mu{color:#C2BFC8;border-color:transparent}.cd.mu .ev b{opacity:.55}
+.cd.td{border-color:var(--blue)}.cd.td .cdd{color:var(--blue);font-weight:700}
+.cd.sel{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cd.sel .ev b{color:rgba(255,255,255,.88)}
+.cdd{flex:none}
+.cde{display:flex;flex-direction:column;gap:2px;min-width:0;overflow:hidden}
+/* one entry inside a day: a coloured dot plus its title (D3.3.3) */
+.ev{display:flex;align-items:center;gap:5px;min-width:0;font-style:normal;font-size:11.5px;line-height:1.25}
+.ev em{width:7px;height:7px;border-radius:9px;background:var(--cc,var(--t3));flex:none}
+.ev b{font-weight:500;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev.more b{color:var(--t3)}
+.ev.more em{background:transparent}
+/* the chosen day's list sits under the month (D3.4) */
+.calday{margin-top:26px}
+/* tablets and phones: dots only, no titles, smaller chips (F1.6) */
 @media(max-width:860px){
  .calh h1{font-size:24px}
+ .calacts{width:100%;margin:6px 0 0}.calacts .btn{flex:1}
  .cg{gap:2px}
- .cd{aspect-ratio:auto;min-height:52px;padding:5px 5px 6px;border-radius:8px;font-size:14px}
- .cd span:last-child{gap:2px}.cd i{width:5px;height:5px}
+ .cd{min-height:58px;padding:5px 4px;border-radius:8px;font-size:14px;gap:3px}
+ .cde{flex-direction:row;flex-wrap:wrap;gap:3px}
+ .ev b{display:none} /* a title does not fit in a phone day cell */
+ .ev em{width:6px;height:6px}
+ .ev.more b{display:inline;font-size:10px}
  .dw{font-size:11px}
- .calmain .chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -18px 6px;padding:0 18px 4px;scrollbar-width:none} /* category chips scroll on their own row */
+ .calmain .chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -18px 6px;padding:0 18px 4px;scrollbar-width:none}
  .calmain .chips::-webkit-scrollbar{display:none}
+ .calmain .chip{padding:5px 11px;font-size:12.5px}
+ .calday{margin-top:18px}
 }
-@media(max-width:380px){.cd{min-height:46px;padding:4px 3px 5px;font-size:13px}.calh h1{font-size:21px}}
+@media(max-width:380px){.cd{min-height:50px;padding:4px 3px}.calh h1{font-size:21px}}
+
+/* a cancelled entry stays in the history but is clearly off (S16, S23) */
+.ev.cx b{text-decoration:line-through;opacity:.55}
+.row.cx .t{text-decoration:line-through}
+.row.cx{opacity:.6}
