@@ -3,13 +3,13 @@
    Three big buttons: Today, This Week, Next Week.
    Today opens category cards (like Home); tapping a card lists that category's items for today.
    This Week / Next Week list items grouped by day.
-   Which date counts:  Songs → Final submission · Content, Activities, Gigs → Date · Tasks → Due date.
+   Which date counts:  Releases → Final submission · Content, Activities, Gigs → Date · Tasks → Due date.
    A Filter button narrows everything on My Day to certain categories and/or one person.
    HTML: built by vMyDay() below. CSS: css/pages/my-day.css (shared styles: css/base.css). */
 Object.assign(S,{dcat:null,mcats:[],mpp:"",mflt:false}); // My Day's own state: open category, filters
 const PERIODS={today:"Today",week:"This Week",next:"Next Week"};
-const MD_DESC={tasks:"Tasks due today.",songs:"Songs with a final submission today.",content:"Posts scheduled for today.",activities:"Activities happening today.",gigs:"Gigs and events today."};
-const PRE_SUBMIT=["Not Started","In Production","For Submission"]; // a song's final submission only matters before it's submitted
+const MD_DESC={tasks:"Tasks due today.",songs:"Releases with a final submission today.",content:"Posts scheduled for today.",activities:"Activities happening today.",gigs:"Gigs and events today."};
+const PRE_SUBMIT=["Not Started","In Production","For Submission"]; // a release's final submission only matters before it's submitted
 
 /* the one date My Day uses for each category */
 const dayDate=e=>e.cat==="songs"?e.final||"":e.cat==="tasks"?e.due||"":e.date||"";
@@ -46,10 +46,10 @@ function mdFilterPanel(){
 /* ---- screens ---- */
 function vMyDay(){if(S.dview==="today"&&S.dcat)return vTodayCat(S.dcat);if(S.dview==="today")return vToday();if(S.dview)return vPeriod(S.dview);
  const g=dayGroups(),first=g.today[0],wk=g.week[0],nx=g.next[0];
- return '<div class="ph"><div><p class="mut">My Day</p><h1>'+shortDay(TODAY)+'</h1><p class="mut lead">Pick a time to see what’s planned.</p></div><div class="acts">'+searchBtn()+mdFilterBtn()+'</div></div>'+mdFilterPanel()+
+ return '<div class="ph"><div><p class="mut">My Day</p><h1>'+shortDay(TODAY)+'</h1><p class="mut lead">Here is what is on your plate today and this week. You have got this.</p></div><div class="acts">'+searchBtn()+mdFilterBtn()+'</div></div>'+mdFilterPanel()+
  '<div class="cards days">'+
  bigCard({act:"dview",data:' data-k="today"',cls:"today",icon:I.sun,title:"Today",desc:"Everything happening or due today.",count:g.today.length,unit:things(g.today.length),
-  warn:g.over.length?g.over.length+" past due, not done yet":"",next:first?"First: "+H(whenLabel(first)||"Today")+" · "+H(first.title):"Nothing planned today"})+
+  warn:g.over.length?g.over.length+" overdue":"",next:first?"First: "+H(whenLabel(first)||"Today")+" · "+H(first.title):"Nothing planned today"})+
  bigCard({act:"dview",data:' data-k="week"',cls:"week",icon:I.cal,title:"This Week",desc:rangeTxt("week"),count:g.week.length,unit:things(g.week.length),
   next:wk?"Next: "+H(wk.title)+" · "+whenTxt(dayDate(wk)):"Nothing else this week"})+
  bigCard({act:"dview",data:' data-k="next"',cls:"next",icon:I.nxt,title:"Next Week",desc:rangeTxt("next"),count:g.next.length,unit:things(g.next.length),
@@ -58,17 +58,17 @@ function vMyDay(){if(S.dview==="today"&&S.dcat)return vTodayCat(S.dcat);if(S.dvi
 /* Today: one card per category, the same look as Home */
 function vToday(){const g=dayGroups(),cats=HUB.filter(h=>!S.mcats.length||S.mcats.includes(h[0]));
  return backBar("My Day","dview",' data-k=""')+
- '<div class="pband today"><div><h1>Today</h1><p>'+rangeTxt("today")+' · '+g.today.length+' '+things(g.today.length)+(g.over.length?' · '+g.over.length+' past due':'')+'</p></div>'+mdFilterBtn()+'</div>'+mdFilterPanel()+
+ '<div class="pband today"><div><h1>Today</h1><p>'+rangeTxt("today")+' · '+g.today.length+' '+things(g.today.length)+(g.over.length?' · '+g.over.length+' overdue':'')+'</p></div><span class="acts">'+searchBtn()+mdFilterBtn()+'</span></div>'+mdFilterPanel()+
  '<div class="cards">'+cats.map(([c,label,icon])=>{const t=g.today.filter(e=>e.cat===c),o=g.over.filter(e=>e.cat===c);
   return bigCard({act:"dcat",data:' data-c="'+c+'"',icon,title:c==="tasks"?"Tasks":label,desc:MD_DESC[c],color:CAT[c].c,count:t.length,unit:"today",
-   warn:o.length?o.length+" past due":"",next:t[0]?"First: "+H(whenLabel(t[0])||"Today")+" · "+H(t[0].title):"Nothing today"});}).join("")+'</div>';}
+   warn:o.length?o.length+" overdue":"",next:t[0]?"First: "+H(whenLabel(t[0])||"Today")+" · "+H(t[0].title):"Nothing today"});}).join("")+'</div>';}
 
-/* Today → one category: its past-due items, then everything today */
+/* Today → one category: its overdue items, then everything today */
 function vTodayCat(c){const g=dayGroups(),t=g.today.filter(e=>e.cat===c),o=g.over.filter(e=>e.cat===c),h=HUB.find(x=>x[0]===c),label=c==="tasks"?"Tasks":h[1];
  return backBar("Today","dcat",' data-c=""')+
- '<div class="ph"><div><h1 class="ttl" style="--cc:'+CAT[c].c+'">'+sv(h[2])+label+' today</h1><p class="mut lead">'+t.length+' '+(t.length===1?"item":"items")+' today'+(o.length?' · '+o.length+' past due':'')+'.</p></div></div>'+
- (o.length?'<div class="sec over"><div class="sh"><span>Past due, not done yet</span><span>'+o.length+'</span></div>'+o.map(mRow).join("")+'</div>':"")+
- (t.length?sh("Today",t.length)+t.map(mTl).join(""):empty("Nothing today",o.length?"Only the past-due items above need attention.":"Nothing in "+label.toLowerCase()+" is planned for today."));}
+ '<div class="ph"><div><h1 class="ttl" style="--cc:'+CAT[c].c+'">'+sv(h[2])+label+' today</h1><p class="mut lead">'+t.length+' '+(t.length===1?"item":"items")+' today'+(o.length?' · '+o.length+' overdue':'')+'.</p></div></div>'+
+ (o.length?'<div class="sec over"><div class="sh"><span>Overdue</span><span>'+o.length+'</span></div>'+o.map(mRow).join("")+'</div>':"")+
+ (t.length?sh("Today",t.length)+t.map(mTl).join(""):empty("Nothing today",o.length?"Only the overdue items above need attention.":"Nothing in "+label.toLowerCase()+" is planned for today."));}
 
 /* This Week / Next Week: grouped by day */
 function vPeriod(k){const l=dayGroups()[k];let body;
@@ -76,7 +76,7 @@ function vPeriod(k){const l=dayGroups()[k];let body;
  else{const ds=[...new Set(l.map(dayDate))].sort();
   body=ds.map(d=>{const it=l.filter(e=>dayDate(e)===d);return sh(shortDay(d)+(d===addD(TODAY,1)?" · Tomorrow":""),it.length)+it.map(mRow).join("")}).join("");}
  return backBar("My Day","dview",' data-k=""')+
-  '<div class="pband '+k+'"><div><h1>'+PERIODS[k]+'</h1><p>'+rangeTxt(k)+' · '+l.length+' '+things(l.length)+'</p></div>'+mdFilterBtn()+'</div>'+mdFilterPanel()+body;}
+  '<div class="pband '+k+'"><div><h1>'+PERIODS[k]+'</h1><p>'+rangeTxt(k)+' · '+l.length+' '+things(l.length)+'</p></div><span class="acts">'+searchBtn()+mdFilterBtn()+'</span></div>'+mdFilterPanel()+body;}
 
 /* ---- my-day page actions ---- */
 PAGE_ACTIONS.dview=d=>{S.dview=d.k||null;S.dcat=null;scrollTo(0,0)};
