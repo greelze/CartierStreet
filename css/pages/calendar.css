@@ -39,7 +39,6 @@
  .calday{margin-top:18px}
 }
 @media(max-width:380px){.cd{min-height:50px;padding:4px 3px}.calh h1{font-size:21px}}
-
 /* a cancelled entry stays in the history but is clearly off (S16, S23) */
 .ev.cx b{text-decoration:line-through;opacity:.55}
 .row.cx .t{text-decoration:line-through}

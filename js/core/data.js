@@ -10,8 +10,8 @@ const CAT={songs:{tag:"RELEASE",label:"Release",pl:"Releases",c:"#5B5BD6",t:"#EE
 const ORDER=Object.keys(CAT);
 const REL_OK={songs:["content","activities","gigs","tasks"],content:["songs","activities","gigs","tasks"],activities:["songs","content","gigs","tasks"],gigs:["songs","content","activities","tasks"],tasks:["songs","content","activities","gigs"]}; // gigs↔songs is narrowed to Release/Listening Party by relOk() (S13)
 const SONG_STATUS={"Not Started":[],"In Production":["Conceptualizing","Producing Beat","Writing Lyrics","To Record","Mixing Vocals","Mastering Track"],
- "For Submission":["Finalizing Metadata","Finalizing Visuals","Planning Promotions","Finalizing Track Masterfile Document"],
- "Submitted/Pitching":["ONErpm Priority Pitched","Pitched for Spotify Playlist (SFA)","Pitched for ONErpm Playlist (Dashboard)"],
+ "For Submission":["Finalizing Release Details","Finalizing Visuals","Planning Promotions","Submitted to Cartier St."],
+ "Submitted/Pitching":["Submitted to ONErpm","ONErpm Priority Pitched","Pitched for Spotify Playlist (SFA)"],
  "Released":["Waiting on Release Day","Initial Press Release Emailed","Released"],"Limbo":["Shelved","Next Release"]};
 const EVT_STATUS=["Planning/Organizing","Confirmed","Postponed","Limbo","Cancelled","Completed"]; // activities (S23)
 const GIG_STATUS=["Inquiry","Planning/Organizing","Confirmed","Awaiting Payment","Postponed","Limbo","Cancelled","Completed"]; // S12; Awaiting Payment is for Booked gigs only
@@ -26,7 +26,7 @@ const GIG_TYPES=[ // S10: Performing = we are on the bill, Attending = someone i
  ["Attending",["Industry Mixer/Conference","Session Invite","Shoot Invite","Masterclass/Talk/Workshop","Press or Media Event","Afterparty","Fashion Show/Art Opening","Awards Night","Fellow Artist's Show","Other Event"]]];
 const ORG_KINDS=["Cartier St. Organized","Co-Organized","Booked (Paid Performance)","Invited/Guest"],CONTENT_TYPES=["Video","Image","Text"];
 const TONE={Confirmed:["#137547"],Released:["#137547"],Posted:["#137547"],"Planning/Organizing":["#9A6200"],Planning:["#9A6200"],Postponed:["#9A6200"],"Awaiting Payment":["#9A6200"],Cancelled:["#B42318"],Lapsed:["#B42318"],"In Production":["#1F6FEB"],"In Progress":["#1F6FEB"],"Ready to Post/Scheduled":["#1F6FEB"],"For Submission":["#1F6FEB"],"Submitted/Pitching":["#1F6FEB"]};
-
+const tone=s=>TONE[s]||["#5A5A63"];
 /* ---- Content: account, phase and post links (S18, S19, S20) ---- */
 const ACCOUNTS=["Cartier St.","Artist Account Only","Collaboration"]; // S18
 /* ---- Promotional Plan block (D6.1.11, W8, S4) ----
@@ -56,6 +56,7 @@ const AD_COL={notes:"notes",folder:"folder_link"};
 /* S27: which activity types are asked what they belong to, and the opt-out */
 const ASK_LINK={"Recording Session":["songs","Which release is this for?"],"Photo/Video Shoot":["content","Which post is this shoot for?"]};
 const NO_LINK="No Existing Release";
+
 /* ---- Release Details block (D6.1.10, RQ1, RQ2, RQ4, P2) ----
    Each box is [key, label, kind, required, ...]. Kinds: t text · n number · a long text · yn yes/no.
    ISRC, UPC and the ONErpm link are never required (D6.1.10). Featuring and Subgenre are
@@ -81,6 +82,5 @@ const RD_COL={distributor:"distributor",notes:"notes",cAudio:"confirm_audio",cVi
  listen:"link_listen",photos:"link_photos",visuals:"link_visuals",press:"link_press",onerpm:"link_onerpm"};
 const RDT_COL={title:"title",feat:"featuring",bio:"song_bio",lyrics:"lyrics",genre:"genre",subgenre:"subgenre",
  bpm:"bpm",key:"music_key",dur:"duration",explicit:"explicit",isrc:"isrc",upc:"upc",credits:"credits"};
-const tone=s=>TONE[s]||["#5A5A63"];
 const VENUES=[]; // [name, address] — filled from Supabase
 let DB={entries:[],rels:[],notifs:[],trash:[]};

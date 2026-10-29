@@ -63,7 +63,7 @@ input:not([type=checkbox]),select,textarea{border:1.5px solid var(--ln);border-r
 .demo{padding:10px 12px;border-radius:10px;background:#F5F8FF;border:1px solid #DCE7FB;color:var(--blue);font-size:13px}
 @media(max-width:860px){.app{grid-template-columns:1fr}.side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px;z-index:40}
 .logo,.me,.navdiv,.nav.cat{display:none}
-.nav[data-t=home]{order:1}.nav[data-t=notifs]{order:2}.nav[data-t=myday]{order:3}.nav[data-t=cal]{order:4}.nav[data-t=settings]{order:5} /* phone bar order (F1.1) */
+.nav[data-t=home]{order:1}.nav[data-t=notifs]{order:2}.nav[data-t=myday]{order:3}.nav[data-t=cal]{order:4}.nav[data-t=settings]{order:5} /* phone bar order (F1.1) */.nav{flex-direction:column;gap:2px;font-size:11px;padding:6px 2px;align-items:center;justify-content:center}.nav .n{position:absolute;top:0;right:14%;margin:0}
 .main{padding:24px 18px 100px}.ph h1{font-size:30px}.lg{grid-template-columns:1fr}.lg .l{display:none}.mb{grid-template-columns:1fr}.dl{grid-template-columns:110px 1fr}.row{gap:12px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 
@@ -196,11 +196,8 @@ body{overflow-x:clip}               /* safety net: nothing can make the page scr
 .mk{background:url("../tcs.png") center/contain no-repeat;border:0;border-radius:0;font-size:0;color:transparent;opacity:1}
 
 .lg .l .mk{width:min(220px,32vw);height:min(220px,32vw)} /* bigger logo on the sign-in screen */
-
-
 /* ---- empty states with a button (P4) ---- */
 .empty .eact{margin-top:16px;display:flex;justify-content:center}
-
 
 /* ---- "Plum Room", the dashboard's name (N1, D0.2, F1.4) ---- */
 .logo span{display:block;line-height:1.15}
@@ -210,7 +207,6 @@ body{overflow-x:clip}               /* safety net: nothing can make the page scr
 .roombar .mk{width:40px;height:40px;border-color:var(--ln);opacity:1}
 .roombar b{display:block}
 .roombar i{font-style:normal;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--t2)}
-
 
 /* ---- sidebar: main tabs, then the categories, then the account (D0.1, D0.4, D0.6) ---- */
 .side{overflow-y:auto}

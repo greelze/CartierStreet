@@ -123,7 +123,6 @@
 .rqa{display:flex;gap:7px;flex:none}
 @media(max-width:860px){.rvwa .btn,.rqa .btn{flex:1}}
 
-
 /* ---- Gig Details (S3) and Activity Details (S26) ---- */
 .dgd,.dad{margin-top:30px}
 .rdp.open{padding:2px 15px 14px;background:var(--soft)}
@@ -131,7 +130,6 @@
 .rdp.open>.gdg:first-child{border-top:0;margin-top:0}
 .gdg h5{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
 @media(max-width:860px){.rdp.open{padding:2px 12px 12px}}
-
 
 /* ---- task buttons (S29) and approval (S31) ---- */
 .tbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px;padding:14px 16px;border:1px solid var(--ln);border-radius:12px;background:#fff}
@@ -146,7 +144,6 @@
  .tbar .btn{width:100%;justify-content:center}
  .tcount{margin-left:0;text-align:center}
 }
-
 /* ---- automatic tasks (S30) ---- */
 .rvw.auto{border-color:var(--b);background:#F8F4F9}
 .rvw.auto h5{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:var(--b);font-weight:600;font-size:13.5px}

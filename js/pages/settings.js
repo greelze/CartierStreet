@@ -3,16 +3,16 @@
    HTML: built by vSettings() below. CSS: css/pages/settings.css (shared styles: css/base.css). */
 const SOCIALS=[["spotify","Spotify"],["apple_music","Apple Music"],["youtube","YouTube"],["facebook","Facebook"],["instagram","Instagram"],["tiktok","TikTok"]];
 Object.assign(S,{elinks:null,ldraft:{}}); // which artist's links are being edited, and the typed values
-function vSettings(){const u=S.user,l=visible(u);return '<div class="ph"><h1>Settings</h1></div><div class="prof">'+av(u,64)+'<div><h3 style="font-size:22px">'+H(M[u].n)+'</h3><p class="mut">'+(isAdmin(u)?"Admin":"Artist")+' · Cartier St.</p></div></div>'+
+function vSettings(){const u=S.user,l=visible(u);return '<div class="ph"><div><h1>Settings</h1><p class="mut lead">Your profile, links and deleted items.</p></div><div class="acts">'+searchBtn()+'</div></div><div class="roombar"><div class="mk">LOGO</div><span><b>Cartier St.</b><i>Plum Room</i></span></div><div class="prof">'+av(u,64)+'<div><h3 style="font-size:22px">'+H(M[u].n)+'</h3><p class="mut">'+(isAdmin(u)?"Admin":isArtist(u)?"Artist":"Member")+' · Cartier St.</p></div></div>'+
  sh("Visible to you")+ORDER.map(k=>'<div class="kv"><span>'+CAT[k].pl+'</span><b>'+l.filter(e=>e.cat===k).length+'</b></div>').join("")+'<div class="kv"><span>Total</span><b>'+l.length+'</b></div>'+
- '<p class="mut note">'+(isAdmin(u)?"Admins see every record in the collective.":"You only see entries you’re assigned to or involved in.")+'</p>'+
- sh("Trash",DB.trash.length||"Empty")+DB.trash.map(e=>'<div class="tr">'+ctag(e.cat)+'<span class="b"><b>'+H(e.title)+'</b><br><span class="mut" style="font-size:13px">'+H(e.eid)+' · '+Math.max(0,30-Math.floor((Date.now()-Date.parse(e.deletedAt))/864e5))+' days left</span></span><button class="btn sm" data-act="restore" data-id="'+e.id+'">Restore</button><button class="btn sm dan" data-act="purge" data-id="'+e.id+'">Delete</button></div>').join("")+
+ '<p class="mut note">'+(isAdmin(u)?"Admins see every record in Cartier St.":isMember(u)?"You can follow every release, and see the activities and tasks you are on.":"You only see entries you’re assigned to or involved in.")+'</p>'+
+ sh("Trash",DB.trash.length||"Empty")+DB.trash.map(e=>'<div class="tr">'+ctag(e.cat)+'<span class="b"><b>'+H(e.title)+'</b><br><span class="mut" style="font-size:13px">'+H(e.eid)+' · '+Math.max(0,30-Math.floor((Date.now()-Date.parse(e.deletedAt))/864e5))+' days left</span></span>'+(canEdit(e,u)?'<button class="btn sm" data-act="restore" data-id="'+e.id+'">Restore</button><button class="btn sm dan" data-act="purge" data-id="'+e.id+'">Delete</button>':'<span class="mut ronly">Only '+H(mn(e.by))+' or an admin can restore this</span>')+'</div>').join("")+
  '<p class="mut note">Deleted entries stay recoverable for 30 days.</p>'+vArtistLinks()+'<div style="margin-top:30px;display:flex;gap:10px"><button class="btn dan" data-act="logout">Log out</button><button class="btn" data-act="reload">Refresh data</button></div>';}
 
 /* ---- artist links ---- */
 function vArtistLinks(){const adm=isAdmin(S.user),
  one=k=>({key:k,name:mn(k),code:k,links:M[k].links||{},id:(M[k].links||{}).id||null,mid:MID[k]}),
- rows=adm?[{key:"label",name:"Cartier St. (the collective)",links:LABEL_LINKS,id:LABEL_LINKS.id||null,mid:null}].concat(ARTISTS.map(one))
+ rows=adm?[{key:"label",name:"Cartier St.",links:LABEL_LINKS,id:LABEL_LINKS.id||null,mid:null}].concat(ARTISTS.filter(k=>k!==LABEL_CODE).map(one)) // the label already has the first row
         :M[S.user].art?[one(S.user)]:[]; // artists only see their own links
  if(!rows.length)return"";
  return sh(adm?"Artist links":"Your links",adm?rows.length:"")+'<p class="mut note" style="margin:0 0 10px">Tap a button to open that page.'+(adm?" Admins can edit the links here.":" Ask an admin to change them.")+'</p>'+
@@ -37,4 +37,4 @@ PAGE_ACTIONS.lsave=d=>{const draft=Object.assign({},S.ldraft);
  run(()=>saveLinks(d.id||null,d.m||null,draft)).then(ok=>{if(!ok)return;S.elinks=null;S.ldraft={};toast("Links saved")});return false};
 PAGE_ACTIONS.logout=()=>{db.auth.signOut();return false}; // onAuth() clears the screen once signed out
 PAGE_ACTIONS.reload=()=>{run(async()=>{}).then(ok=>ok&&toast("Up to date"));return false};
-PAGE_ACTIONS.purge=d=>{if(confirm("Delete permanently? This removes its relationships and cannot be undone."))run(()=>purgeEntry(d.id)).then(ok=>ok&&toast("Deleted permanently"));return false};
+PAGE_ACTIONS.purge=d=>{const e=DB.trash.find(x=>x.id===d.id);if(e&&!canEdit(e,S.user)){toast("Only the owner or an admin can delete this");return false}if(confirm("Delete permanently? This removes its relationships and cannot be undone."))run(()=>purgeEntry(d.id)).then(ok=>ok&&toast("Deleted permanently"));return false};
