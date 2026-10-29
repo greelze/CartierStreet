@@ -1,0 +1,153 @@
+/* Release Details block (D6.1.10, RQ1, RQ2, P2, F1.8, F1.9)
+   One part open at a time, with a running count of the boxes still to fill.
+   HTML: js/core/details.js */
+.dfull{min-width:0} /* the full-width column: review bars, Release Details, Promotional Plan */
+.drd{min-width:0;margin-top:26px}
+/* the header sticks, so the count stays in view down a long form (F1.8).
+   It has to be the sticky element itself: a sticky child can only travel inside its own parent.
+   It parks below the "Back to" bar rather than under it, and stays beneath it in the stack. */
+.rdh{position:sticky;top:75px;z-index:1;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0 8px;background:#fff}
+.rdh h4{margin:0!important}
+/* the sticky "boxes left" count (F1.8) */
+.rdbar{margin-left:auto;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:99px;background:#FBE9EF;color:var(--crit)}
+.rdbar.ok{background:#E4F4F1;color:#137547}
+.rdnote{font-size:13px;color:var(--t2);margin:8px 0 0}
+.rdnote.ro{padding:9px 12px;border-radius:9px;background:var(--soft)}
+/* the part tabs */
+.rdp{margin-top:12px;border:1px solid var(--ln);border-radius:12px;overflow:hidden}
+.rdt{display:flex;align-items:center;gap:10px;width:100%;padding:13px 15px;font-weight:600;border-top:1px solid var(--ln);background:#fff}
+.rdp>.rdt:first-child{border-top:0}
+.rdt:hover{background:var(--soft)}
+.rdt.on{background:var(--soft)}
+.rdt span{flex:1;min-width:0}
+.rdt em{font-style:normal;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:#FBE9EF;color:var(--crit)}
+.rdt i.ok{font-style:normal;color:#137547;font-weight:700}
+.rdbody{padding:4px 15px 20px;border-top:1px solid var(--ln);background:var(--soft)}
+/* the boxes */
+.rdg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:12px}
+.rdf{min-width:0;display:flex;flex-direction:column;gap:5px}
+.rdf.wide{grid-column:1/-1}
+.rdf b{font-size:12.5px;color:var(--t2);display:flex;align-items:center;gap:5px}
+.rdf i.rq{font-style:normal;color:var(--crit);font-weight:700}
+.rdf input,.rdf textarea{width:100%;padding:9px 11px;border:1px solid var(--ln);border-radius:9px;background:#fff}
+.rdf textarea{resize:vertical;line-height:1.5}
+.rdf input:focus,.rdf textarea:focus{border-color:var(--blue)}
+.rdf.bad input,.rdf.bad textarea{border-color:var(--crit);background:#FFF8F8}
+.rdf.bad>b{color:var(--crit)}
+.rdro{padding:9px 0;font-size:14.5px;overflow-wrap:anywhere}
+.rdro em{color:var(--t3);font-style:normal}
+.rdf.done .rdro{color:var(--t2)}
+/* yes / no */
+.yn{display:flex;gap:6px}
+.yn button{padding:8px 16px;border:1px solid var(--ln);border-radius:9px;background:#fff;font-weight:600;font-size:14px}
+.yn button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rdf.bad .yn button{border-color:var(--crit)}
+/* the "?" help tip (P2) */
+.tip{width:17px;height:17px;border-radius:99px;border:1px solid var(--t3);color:var(--t2);font-size:11px;font-weight:700;display:inline-grid;place-items:center;flex:none;line-height:1}
+.tip:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* one track */
+.trow{margin-top:16px;padding-top:4px;border-top:1px solid var(--ln)}
+.trow:first-child{border-top:0}
+.trow h5{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600;margin-top:12px}
+.rdnum{width:22px;height:22px;border-radius:7px;background:var(--b);color:var(--cr);font-size:12px;font-weight:700;display:grid;place-items:center;flex:none}
+/* the confirm box per step (RQ2) */
+.rdck{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:12px 13px;border-radius:10px;border:1px solid var(--ln);background:#fff;cursor:pointer}
+.rdck.bad{border-color:var(--crit);background:#FFF8F8}
+.rdck.on{border-color:#137547;background:#F3FAF7}
+.rdck input{margin-top:2px;width:17px;height:17px;flex:none}
+.rdck b{display:block;font-size:14px;font-weight:600}
+.rdck i{font-style:normal;font-size:12.5px;color:var(--t2)}
+@media(max-width:860px){
+ .rdh{top:71px}
+ .rdbody{padding:4px 12px 18px}
+ .rdg{grid-template-columns:1fr}
+}
+
+/* ---- Promotional Plan (D6.1.11, W8) ---- */
+.dpp{margin-top:34px}
+.ppph{padding:13px 0;border-top:1px solid var(--ln)}
+.ppph:first-child{border-top:0}
+.ppphh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+.ppphh b{font-size:14.5px;font-weight:600}
+.ppphh span{font-size:12.5px;color:var(--t3)}
+.ppph.bad .ppphh b{color:var(--crit)}
+.pprow{display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;margin-bottom:6px;border:1px solid var(--ln);border-radius:10px;background:#fff}
+.pprow:hover{background:var(--soft)}
+.pprow .b{flex:1;min-width:0}
+.pprow .b b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pprow .b span{font-size:12.5px;color:var(--t2)}
+.pprow .s{font-size:12.5px;font-weight:600;flex:none}
+.ppempty{font-size:13px;color:var(--t3);margin-bottom:7px}
+.ppph.bad .ppempty{color:var(--crit)}
+/* ---- post links (S19) ---- */
+.plk{margin-top:10px;padding:12px;border:1px solid var(--ln);border-radius:11px;background:#fff}
+.plk.bad{border-color:var(--crit);background:#FFF8F8}
+.plrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.plrow input{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--ln);border-radius:9px;background:#fff}
+.plrow select{padding:8px 9px;border:1px solid var(--ln);border-radius:9px;background:#fff;font-size:13px;max-width:42%}
+.pltag{font-size:12px;font-weight:600;color:var(--t2);padding:4px 9px;border-radius:99px;background:var(--soft);flex:none}
+.plrow .rm{width:26px;height:26px;border-radius:99px;background:#EAE7EE;color:var(--t2);font-size:16px;line-height:1;display:grid;place-items:center;flex:none}
+.plrow .rm:hover{background:var(--crit);color:#fff}
+/* ---- the Overdue tag on a post whose time has passed with no link (S20) ---- */
+.odue{font-style:normal;font-size:11px;font-weight:700;margin-left:7px;padding:2px 7px;border-radius:99px;background:#FBE9EF;color:var(--crit)}
+
+/* ---- the Cartier St. review (W2, W4, F2.3, RQ9) ---- */
+.rvw{margin-top:24px;padding:15px 17px;border-radius:12px;border:1px solid var(--ln);background:#fff}
+.rvw h5{font-size:14.5px;font-weight:700;margin-bottom:4px}
+.rvw p{font-size:13.5px;color:var(--t2)}
+.rvw .retn{margin:6px 0 8px;padding:10px 12px;border-radius:9px;background:var(--soft);color:var(--ink);white-space:pre-wrap}
+.rvw textarea{width:100%;margin-top:9px;padding:10px 11px;border:1px solid var(--ln);border-radius:9px;background:#fff;resize:vertical}
+.rvwa{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
+.rvw.ok{border-color:#137547;background:#F3FAF7}.rvw.ok h5{color:#137547}
+.rvw.bad{border-color:var(--crit);background:#FFF8F8}.rvw.bad h5{color:var(--crit)}
+.rvw.wait{border-color:var(--blue);background:#F4F8FE}.rvw.wait h5{color:var(--blue)}
+.rvw.todo{background:var(--soft)}
+.rvw.ret{border-color:var(--crit)}
+/* ---- locked boxes and change requests (F3.3, F3.5) ---- */
+.rdf.locked .rdro{padding:9px 11px;border:1px dashed var(--ln);border-radius:9px;background:var(--soft)}
+.lkd{font-style:normal;font-size:10px;opacity:.6;margin-left:4px}
+.lnk{font-size:12.5px;font-weight:600;color:var(--blue);text-decoration:underline;padding:3px 0}
+.rdreq{font-size:12.5px;color:var(--t2);margin-top:5px}
+.rdreq b{color:var(--ink)}
+.rdedit{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.rdedit input,.rdedit textarea{flex:1;min-width:140px;padding:8px 10px;border:1px solid var(--blue);border-radius:9px;background:#fff}
+.rqp{margin-top:14px;padding:13px 15px;border:1px solid var(--blue);border-radius:12px;background:#F4F8FE}
+.rqp h5{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.rqrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid #DCE6F7}
+.rqp .rqrow:first-of-type{border-top:0}
+.rqrow .b{flex:1;min-width:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13.5px}
+.rqrow .b b{font-weight:600}
+.rqrow .was{color:var(--t3);text-decoration:line-through;overflow-wrap:anywhere}
+.rqrow .arr{color:var(--t3)}
+.rqrow .now{font-weight:600;overflow-wrap:anywhere}
+.rqa{display:flex;gap:7px;flex:none}
+@media(max-width:860px){.rvwa .btn,.rqa .btn{flex:1}}
+
+
+/* ---- Gig Details (S3) and Activity Details (S26) ---- */
+.dgd,.dad{margin-top:30px}
+.rdp.open{padding:2px 15px 14px;background:var(--soft)}
+.gdg{padding-top:10px;margin-top:10px;border-top:1px solid var(--ln)}
+.rdp.open>.gdg:first-child{border-top:0;margin-top:0}
+.gdg h5{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
+@media(max-width:860px){.rdp.open{padding:2px 12px 12px}}
+
+
+/* ---- task buttons (S29) and approval (S31) ---- */
+.tbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px;padding:14px 16px;border:1px solid var(--ln);border-radius:12px;background:#fff}
+.btn.ok{background:#137547;color:#fff;border-color:#137547}
+.btn.ok:hover{background:#0F5C38}
+.tdone{font-size:14px;font-weight:600;color:#137547}
+.tcount{font-size:12.5px;color:var(--t2);margin-left:auto}
+.dtick{font-style:normal;font-size:11px;font-weight:700;color:#137547}
+.twait{margin-bottom:22px}
+@media(max-width:860px){
+ .tbar{flex-direction:column;align-items:stretch}
+ .tbar .btn{width:100%;justify-content:center}
+ .tcount{margin-left:0;text-align:center}
+}
+
+/* ---- automatic tasks (S30) ---- */
+.rvw.auto{border-color:var(--b);background:#F8F4F9}
+.rvw.auto h5{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:var(--b);font-weight:600;font-size:13.5px}
+.atag{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--b);color:var(--cr);flex:none}
