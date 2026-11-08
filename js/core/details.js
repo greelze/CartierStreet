@@ -9,7 +9,64 @@
    changes go through a request the admin approves (F3.5).
    HTML: built by vRD() below. CSS: css/pages/details.css */
 
-Object.assign(S,{rd:"release",rdTip:null,rdEdit:null}); // open part, showing tip, and the box being re-typed
+Object.assign(S,{rd:"release",rdTip:null,rdEdit:null,rdSave:{}}); // open part, showing tip, the box being re-typed, and what each box is doing (S40)
+
+/* ---- the three things every box in this app now carries (S37, P3, S40) ----
+   They live here because Release Details, the Promotional Plan, Gig Details
+   and Activity Details all draw their boxes through one of two renderers. */
+
+/* which box a save belongs to, read back out of the attributes it was given */
+function saveTag(attr){const k=/data-(rd|pp|ppp|gd|ad|rc|pf)="([^"]+)"/.exec(attr||""),p=/data-pos="(\d+)"/.exec(attr||"");
+ return k?k[1]+":"+k[2]+(p?":"+p[1]:""):"";}
+
+/* S37: the gray example, scoped so "notes" can mean two different things */
+function egOf(k,attr){const kind=(/data-(rd|pp|ppp|gd|ad|rc|pf)=/.exec(attr||"")||[,""])[1];
+ const t=EG[kind+":"+k]||EG[k];return t?' placeholder="'+H(t)+'"':"";}
+
+/* P3: one line beside a red box saying what to do about it */
+function todoLine(f){if(TODO[f[0]])return '<p class="rdtodo">'+H(TODO[f[0]])+'</p>';
+ /* an abbreviation keeps its capitals (BPM, ISRC, UPC); an ordinary label does not */
+ const l=f[1],name=(l===l.toUpperCase()&&/[A-Z]/.test(l))?l:l.toLowerCase();
+ return '<p class="rdtodo">Add the '+H(name)+' to continue.</p>';}
+
+/* S40: what this box is doing right now. The text is never taken off the
+   screen, whatever the answer is — nobody should have to retype an answer. */
+const SAVE_WORD={saving:"Saving…",ok:"Saved",err:"Not saved, trying again",
+ fail:"Still not saved — check your connection",theirs:"Just changed by someone else"};
+const SAVE_CLS={saving:"wait",ok:"ok",err:"bad",fail:"bad",theirs:"warn"};
+function savedMark(tag){const s=tag&&S.rdSave[tag];
+ return s?'<i class="sv '+SAVE_CLS[s]+'">'+SAVE_WORD[s]+'</i>':"";}
+
+/* S40: three tries before it gives up, and the typed value stays put either way */
+const SAVE_T={};
+async function pushSave(tag,fn){S.rdSave[tag]="saving";render();
+ for(let i=0;i<3;i++){
+  try{await fn();S.rdSave[tag]="ok";render();
+   clearTimeout(SAVE_T[tag]);SAVE_T[tag]=setTimeout(()=>{delete S.rdSave[tag];render()},2500);return true}
+  catch(err){console.warn("Save failed:",err&&err.message||err);
+   S.rdSave[tag]=i<2?"err":"fail";render();
+   if(i<2)await new Promise(r=>setTimeout(r,500*(i+1)));}}
+ return false;}
+
+/* S40: an admin and the owner in the same box. The last write wins, which the
+   database already decides — this only makes sure the page says it happened
+   instead of silently swapping the words under someone's eyes. */
+const RD_SEEN={id:null,v:{}};
+function rdWatch(e){const now={};
+ RD_REL.concat(RD_LINKS,[["notes"]]).forEach(f=>now["rd:"+f[0]]=rdVal(e,f[0]));
+ (e.trk||[]).forEach(t=>RD_TRACK.forEach(f=>now["rd:"+f[0]+":"+t.pos]=t[f[0]]));
+ PP_TEXT.forEach(f=>now["pp:"+f[0]]=ppVal(e,f[0]));
+ PP_PLATFORMS.forEach(p=>now["ppp:"+p[0]]=ppPlat(e,p[0]));
+ if(RD_SEEN.id===e.id)Object.keys(now).forEach(k=>{
+  const a=RD_SEEN.v[k],b=now[k];
+  if(String(a==null?"":a)!==String(b==null?"":b)&&!S.rdSave[k]){
+   S.rdSave[k]="theirs";clearTimeout(SAVE_T[k]);
+   SAVE_T[k]=setTimeout(()=>{delete S.rdSave[k];render()},6000);}});
+ RD_SEEN.id=e.id;RD_SEEN.v=now;}
+
+/* S40: the automatic "submit the release" task says how much is actually left */
+const autoLeft=e=>{if(e.cat!=="tasks"||e.autoKind!=="submit_cs"||!e.src)return 0;
+ const r=live(e.src);return r&&!isPast(r)?subLeft(r):0;};
 
 /* ---- what is still missing (also drives the submit lock, W2) ---- */
 const rdVal=(e,k)=>(e.rd||{})[k];
@@ -33,14 +90,15 @@ const reqKey=(k,pos)=>k+(pos?":"+pos:"");
 /* ---- one box ---- */
 const tipBtn=k=>TIP[k]?'<button class="tip" data-act="rdtip" data-k="'+k+'" aria-label="What is this?">?</button>':"";
 function rdBox(f,v,attr,ed){const k=f[0],need=f[3],bad=need&&!filled(f[2]==="yn"?(v===null||v===undefined?"":v):v);
- const lab='<b>'+f[1]+(need?'<i class="rq">*</i>':"")+tipBtn(k)+'</b>';
+ const tag=saveTag(attr),eg=egOf(k,attr);
+ const lab='<b>'+f[1]+(need?'<i class="rq">*</i>':"")+tipBtn(k)+savedMark(tag)+'</b>';
  let h;
  if(!ed)h='<p class="rdro">'+(filled(v)?(f[2]==="yn"?(v?"Yes":"No"):H(String(v))):"<em>Empty</em>")+'</p>';
- else if(f[2]==="a")h='<textarea rows="'+(k==="lyrics"||k==="credits"?6:3)+'" '+attr+'>'+H(v==null?"":String(v))+'</textarea>';
+ else if(f[2]==="a")h='<textarea rows="'+(k==="lyrics"||k==="credits"?6:3)+'" '+attr+eg+'>'+H(v==null?"":String(v))+'</textarea>';
  else if(f[2]==="yn")h='<div class="yn" role="radiogroup" aria-label="'+f[1]+'">'+[["Yes",true],["No",false]].map(o=>
    '<button type="button" role="radio" aria-checked="'+(v===o[1])+'" class="'+(v===o[1]?"on":"")+'" data-act="rdyn" '+attr.replace("data-rd","data-set")+' data-v="'+o[0]+'">'+o[0]+'</button>').join("")+'</div>';
- else h='<input type="'+(f[2]==="n"?"number":"text")+'" '+attr+' value="'+H(v==null?"":String(v))+'"'+(RD_LINKS.some(l=>l[0]===k)?' placeholder="https://…" inputmode="url"':"")+'>';
- return '<div class="rdf'+(f[2]==="a"?" wide":"")+(bad?" bad":"")+'">'+lab+h+'</div>';}
+ else h='<input type="'+(f[2]==="n"?"number":"text")+'" '+attr+eg+' value="'+H(v==null?"":String(v))+'"'+(RD_LINKS.some(l=>l[0]===k)?' inputmode="url"':"")+'>';
+ return '<div class="rdf'+(f[2]==="a"?" wide":"")+(bad?" bad":"")+'">'+lab+h+(bad&&ed?todoLine(f):"")+'</div>';}
 
 /* a box on an approved release: read-only, with a way to ask for a change (F3.3, F3.5) */
 function rdCell(e,f,v,attr,ed,pos){const k=f[0];
@@ -78,14 +136,17 @@ function rdNotes(e,ed){
 /* the one tick-box per step the admin checks against Drive during review (RQ2) */
 function rdConfirm(e,part,ed){const l=RD_CONFIRM.filter(c=>c[2]===part);if(!l.length)return"";
  return l.map(c=>{const on=!!rdVal(e,c[0]);
-  return '<label class="rdck'+(on?" on":" bad")+'"><input type="checkbox"'+(on?" checked":"")+(ed?'':" disabled")+' data-rdck="'+c[0]+'"><span><b>'+c[1]+'</b><i>'+c[3]+'</i></span></label>'}).join("");}
+  return '<label class="rdck'+(on?" on":" bad")+'"><input type="checkbox"'+(on?" checked":"")+(ed?'':" disabled")+' data-rdck="'+c[0]+'"><span><b>'+c[1]+'</b><i>'+c[3]+'</i>'+
+   (!on&&ed?'<i class="rdtodo">'+H(TODO[c[0]]||"Tick this to continue.")+'</i>':"")+'</span></label>'}).join("");}
 
 const RD_BODY={release:rdRelease,tracks:rdTracks,links:rdLinks,notes:rdNotes};
 
 /* ---- the block ---- */
 function vRD(e){if(e.cat!=="songs"||isPast(e))return""; // a past release skips the checklist (F5.2)
  const ed=canEdit(e,S.user),left=rdLeft(e),open=S.rd||"release";
+ rdWatch(e); // S40: notice anything an admin changed while this page was open
  return '<div class="drd"><div class="rdh"><h4>Release Details</h4>'+
+  (ed&&subLeft(e)?'<button class="lnk rdgo" data-act="rdjump">Go to first empty</button>':"")+ // F1.9
   '<span class="rdbar'+(left?"":" ok")+'">'+(left?left+" box"+(left===1?"":"es")+" left":"All boxes filled")+'</span></div>'+
   (ed?"":'<p class="rdnote ro">View only — only '+H(mn(e.by))+' or an admin can fill this in.</p>')+
   vReqPanel(e)+
@@ -109,8 +170,14 @@ PAGE_ACTIONS.rdpart=d=>{S.rd=d.p;S.rdTip=null;S.rdEdit=null};
 PAGE_ACTIONS.rdtip=d=>{S.rdTip=S.rdTip===d.k?null:d.k;toast(TIP[d.k]);return false};
 PAGE_ACTIONS.rdyn=d=>{const e=live(S.open);if(!e||!canEdit(e,S.user))return false;
  rdWrite(e,d.set,d.v==="Yes",d.pos?+d.pos:null);return false};
-/* jump to the part holding the first empty required box (F1.9) */
-PAGE_ACTIONS.rdjump=()=>{const m=rdMissing(live(S.open)||{});if(m.length)S.rd=m[0][0]};
+/* F1.9, S40: open the part holding the first empty box, then put the cursor in
+   it. Opening the part is not enough on a long form — the box has to come to
+   the person. The timeout lets the rebuild finish first. */
+PAGE_ACTIONS.rdjump=()=>{const e=live(S.open)||{},m=rdMissing(e);
+ if(m.length)S.rd=m[0][0];else if(ppLeft(e)){S.pp=ppMissing(e)[0][0];}
+ setTimeout(()=>{const n=document.querySelector(".rdf.bad, .rdck.bad, .ppph.bad");if(!n)return;
+  if(n.scrollIntoView)n.scrollIntoView({block:"center"}); // not every engine has it
+  const f=n.querySelector("input:not([disabled]),textarea,button");f&&f.focus();},30);};
 
 /* change requests (F3.5) */
 PAGE_ACTIONS.rdaskreq=d=>{S.rdEdit=reqKey(d.k,d.pos?+d.pos:null);
@@ -136,12 +203,11 @@ PAGE_ACTIONS.rqno=d=>{const e=live(S.open);if(!e||!isAdmin(S.user))return false;
 /* ---- saving ----
    The box already shows what was typed, so the write goes out quietly and
    only speaks up if it fails (and then puts the old value back). */
+/* S40: the typed value stays on screen whatever happens to the save. The old
+   behaviour put the previous value back on failure, which meant retyping. */
 function rdWrite(e,key,val,pos){
- const before=pos==null?rdVal(e,key):(e.trk.find(t=>t.pos===pos)||{})[key];
  if(pos==null)e.rd[key]=val;else{const t=e.trk.find(x=>x.pos===pos);if(t)t[key]=val}
- render();
- runSoft(()=>saveRD(e.id,key,val,pos),()=>{
-  if(pos==null)e.rd[key]=before;else{const t=e.trk.find(x=>x.pos===pos);if(t)t[key]=before}});}
+ pushSave("rd:"+key+(pos?":"+pos:""),()=>saveRD(e.id,key,val,pos));}
 
 function reqWrite(e,list){const before=rdReqs(e);e.req=list;render();
  runSoft(()=>saveReqs(e.id,list),()=>{e.req=before});}

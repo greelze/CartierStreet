@@ -1,0 +1,24 @@
+/* Comments on an entry (S39, D6.6)
+   HTML: js/core/comments.js */
+.dcom{min-width:0}
+.cml{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+.cm{display:flex;gap:11px;align-items:flex-start}
+.cm .cmb{flex:1;min-width:0;padding:10px 13px;border:1px solid var(--ln);border-radius:12px;background:#fff}
+.cm.me .cmb{background:var(--soft)}
+.cmh{display:flex;align-items:baseline;gap:9px;margin-bottom:3px}
+.cmh b{font-size:14px;font-weight:600}
+.cmh span{font-size:12px;color:var(--t3)}
+.cmx{margin-left:auto;width:22px;height:22px;flex:none;border-radius:99px;color:var(--t3);font-size:15px;line-height:1;display:grid;place-items:center}
+.cmx:hover{background:var(--crit);color:#fff}
+.cm p{font-size:14.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.cmempty{font-size:13.5px;margin-bottom:16px}
+/* the box you type in */
+.cmnew{display:flex;gap:11px;align-items:flex-start}
+.cmnew .cmb{flex:1;min-width:0}
+.cmnew textarea{width:100%;padding:10px 13px;border:1px solid var(--ln);border-radius:12px;background:#fff;resize:vertical;font-size:14.5px}
+.cmact{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px}
+.cmwho{font-size:12.5px;flex:1;min-width:0}
+@media(max-width:860px){
+ .cmwho{flex:none;width:100%;order:2}
+ .cmact .btn{order:1;width:100%}
+}

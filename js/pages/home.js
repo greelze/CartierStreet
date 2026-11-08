@@ -45,9 +45,9 @@ function vCatPage(c){const l=catItems(c),h=HUB.find(x=>x[0]===c);let body;
  else if(c==="content")body=contentTools()+'<div id="clist">'+contentList()+'</div>';
  else{const open=sortByOcc(l.filter(e=>!isFin(e))),fin=sortByOcc(l.filter(isFin));
   body=(open.length?timeSections(open,c,c==="tasks"?"tasks":""):empty("No "+CAT[c].pl.toLowerCase()+" yet","Add your first one.",addBtn("Add "+CAT[c].label.toLowerCase(),c)))+
-   (c==="tasks"?foldSection(fin.filter(e=>e.status==="Lapsed"),"tasks-lapsed","Lapsed","done")+foldSection(fin.filter(e=>e.status!=="Lapsed"),"tasks-done","Completed","done")
+      (c==="tasks"?foldSection(fin.filter(e=>e.status==="Lapsed"),"tasks-lapsed","Lapsed","done")+foldSection(fin.filter(e=>e.status!=="Lapsed"),"tasks-done","Completed","done")
     :foldSection(fin,c+"-done",finLabel(c),"done"));} // Lapsed sits above Completed (S28)
- if(c==="tasks")body=vWaiting()+body; // S31
+     if(c==="tasks")body=vWaiting()+body; // S31
  return backBar("Home","hcat",' data-c=""')+
  '<div class="ph"><div><h1 class="ttl" style="--cc:'+CAT[c].c+'">'+sv(h[2])+h[1]+'</h1><p class="mut lead">'+(c==="tasks"&&S.allTasks?"Everyone’s tasks, sorted by when they’re due.":CAT_INTRO[c])+'</p></div><div class="acts">'+searchBtn()+addBtn("Add "+CAT[c].label.toLowerCase(),c)+'</div></div>'+
  (c==="tasks"&&isAdmin(S.user)?'<div class="chips"><button class="chip'+(S.allTasks?"":" on")+'" data-act="alltasks" data-v="">Only mine</button><button class="chip'+(S.allTasks?" on":"")+'" data-act="alltasks" data-v="1">Everyone’s tasks</button></div>':"")+body;}
@@ -60,18 +60,24 @@ function songSections(l){if(!l.length)return empty("No releases yet","Add your f
   it=st==="Released"?it.slice().sort((a,b)=>(b.release||"").localeCompare(a.release||"")):sortByOcc(it);
   return sh(st,it.length)+it.map(row).join("")}).join("")+foldSection(out,"songs-done","Released","done");}
 
-/* Content: the list shows straight away; search + filters stay hidden until "Search or filter" is tapped */
-const cFiltered=()=>!!(S.cq.trim()||S.cst||S.cplat||S.ctype||S.cpp);
+/* Content: the list shows straight away; search + filters stay hidden until "Search or filter" is tapped.
+   S22: the four filters are Status, Type, Platform and Release. Person is gone —
+   a post belongs to a release, and "whose post is it" was never the question
+   anyone actually asked of this list. */
+const cFiltered=()=>!!(S.cq.trim()||S.cst||S.cplat||S.ctype||S.crel);
+const linkedTo=(id,rel)=>DB.rels.some(r=>(r.a===rel&&r.b===id)||(r.b===rel&&r.a===id));
+const relOpts=()=>sortByOcc(visible(S.user).filter(e=>e.cat==="songs"));
 function contentTools(){const openP=S.cflt||cFiltered(),o=(k,v,lab)=>'<option value="'+H(v)+'"'+(S[k]===v?" selected":"")+'>'+H(lab)+'</option>';
  if(!openP)return '<button class="btn big" data-act="cflt">'+sv(I.find)+'<span>Search or filter content</span></button>';
  return '<div class="fpanel"><div class="fhead"><b>Search or filter content</b><button class="btn sm" data-act="cclear">Clear &amp; close</button></div><div class="tb"><input id="cq" type="search" placeholder="Type a title, platform or name…" value="'+H(S.cq)+'" aria-label="Search content">'+
  '<select data-flt="cst" aria-label="Status">'+o("cst","","Any status")+CONTENT_STATUS.map(s=>o("cst",s,s)).join("")+'</select>'+
- '<select data-flt="cplat" aria-label="Platform">'+o("cplat","","Any platform")+PLATFORMS.map(s=>o("cplat",s,s)).join("")+'</select>'+
  '<select data-flt="ctype" aria-label="Type">'+o("ctype","","Any type")+CONTENT_TYPES.map(s=>o("ctype",s,s)).join("")+'</select>'+
- '<select data-flt="cpp" aria-label="Person">'+o("cpp","","Anyone")+MK.map(k=>o("cpp",k,mn(k))).join("")+'</select></div></div>';}
+ '<select data-flt="cplat" aria-label="Platform">'+o("cplat","","Any platform")+PLATFORMS.map(s=>o("cplat",s,s)).join("")+'</select>'+
+ '<select data-flt="crel" aria-label="Release">'+o("crel","","Any release")+relOpts().map(e=>o("crel",e.id,e.title)).join("")+'</select></div></div>';}
 function contentList(){const q=S.cq.trim().toLowerCase(),fl=cFiltered();let l=sortByOcc(catItems("content"));
  l=q||S.cst?l:l.filter(e=>!isFin(e));if(q)l=l.filter(e=>hay(e).includes(q));
- if(S.cst)l=l.filter(e=>e.status===S.cst);if(S.cplat)l=l.filter(e=>(e.platforms||[]).includes(S.cplat));if(S.ctype)l=l.filter(e=>e.type===S.ctype);if(S.cpp)l=l.filter(e=>involved(e,S.cpp));
+ if(S.cst)l=l.filter(e=>e.status===S.cst);if(S.cplat)l=l.filter(e=>(e.platforms||[]).includes(S.cplat));if(S.ctype)l=l.filter(e=>e.type===S.ctype);
+ if(S.crel)l=l.filter(e=>linkedTo(e.id,S.crel)); // S22
  if(!l.length)return empty(fl?"Nothing matches":"No content yet",fl?"Try different words, or tap “Clear & close”.":"Plan your first post.",fl?"":addBtn("Add content","content"));
  return sh(fl?"Matching content":"Planned content",l.length)+l.map(row).join("")+(fl?"":foldSection(sortByOcc(catItems("content").filter(isFin)),"content-done","Completed","done"));}
 
@@ -82,4 +88,4 @@ PAGE_ACTIONS.hcat=d=>{S.hcat=d.c||null;scrollTo(0,0)};
 PAGE_ACTIONS.sidecat=d=>{Object.assign(S,{tab:"home",hcat:d.c,search:false,open:null});scrollTo(0,0)}; // the five category links in the sidebar
 PAGE_ACTIONS.alltasks=d=>{S.allTasks=!!d.v};
 PAGE_ACTIONS.cflt=()=>{S.cflt=true;setTimeout(()=>{const i=$("#cq");i&&i.focus()})};
-PAGE_ACTIONS.cclear=()=>{Object.assign(S,{cflt:false,cq:"",cst:"",cplat:"",ctype:"",cpp:""})};
+PAGE_ACTIONS.cclear=()=>{Object.assign(S,{cflt:false,cq:"",cst:"",cplat:"",ctype:"",crel:""})}; // S22

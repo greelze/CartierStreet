@@ -1,3 +1,17 @@
+/* the Admin / Artist switch (1.1) */
+.modesw{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:4px 0 2px}
+.modeb{padding:14px 16px;border:1px solid var(--ln);border-radius:13px;background:#fff;text-align:left}
+.modeb:hover{background:var(--soft)}
+.modeb.on{border-color:var(--b);background:#F8F4F9}
+.modeb b{display:block;font-size:15px;font-weight:600;margin-bottom:3px}
+.modeb.on b{color:var(--b)}
+.modeb span{display:block;font-size:12.5px;color:var(--t2);line-height:1.5}
+@media(max-width:860px){.modesw{grid-template-columns:1fr}}
+/* a settings row that opens a page of its own (the Contacts book, S38) */
+.kv.kvgo{cursor:pointer;width:100%;text-align:left}
+.kv.kvgo:hover{background:var(--soft)}
+.kv.kvgo b{display:flex;align-items:center;gap:7px}
+.kv.kvgo svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 /* settings page styles */
 .prof{display:flex;gap:16px;align-items:center;padding:14px 0}.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--ln)}
 .tr{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln)}.tr .b{flex:1}

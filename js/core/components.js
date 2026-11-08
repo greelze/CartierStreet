@@ -3,12 +3,16 @@
    The list row, the timeline row, the time sections used by the category pages,
    and the folded sections for Later and for finished items. */
 function row(e,extra){const o=nextOcc(e),t=tone(e.status),sub=e.cat==="songs"?o.label:e.cat==="tasks"?o.label+(o.time?" · "+ft(o.time):""):ft(o.time);
- return '<button class="row '+(extra||"")+'" data-act="open" data-id="'+e.id+'"><i class="bar" style="background:'+CAT[e.cat].c+'"></i><span><span class="t">'+H(e.title)+pdot(aedAny(e))+'</span><span class="m">'+H(mline(e))+'</span><span class="s" style="color:'+t[0]+'">'+H(sline(e))+(isOverdue(e)?'<i class="odue">Overdue</i>':"")+'</span></span><span class="r">'+fmtS(o.date)+(sub?'<em>'+H(sub)+'</em>':"")+'<br>'+ctag(e.cat)+'</span></button>';}
+ return '<button class="row '+(extra||"")+'" data-act="open" data-id="'+e.id+'"><i class="bar" style="background:'+CAT[e.cat].c+'"></i><span><span class="t">'+H(e.title)+pdot(aedAny(e))+'</span><span class="m">'+H(mline(e))+'</span><span class="s" style="color:'+t[0]+'">'+H(sline(e))+odueTag(e)+'</span></span><span class="r">'+fmtS(o.date)+(sub?'<em>'+H(sub)+'</em>':"")+'<br>'+ctag(e.cat)+'</span></button>';}
 
 /* timeline row (time on the left) — the "Your schedule" look, used for Today */
 function tlRow(e){const o=nextOcc(e);
  return '<button class="tlr" data-act="open" data-id="'+e.id+'"><span class="tm">'+(o.time?ft(o.time):o.label||"Due")+'</span><i style="width:3px;align-self:stretch;border-radius:9px;background:'+CAT[e.cat].c+'"></i><span class="b"><b>'+H(e.title)+'</b><span class="mut" style="display:block;font-size:14px">'+H(mline(e))+'</span></span>'+ctag(e.cat)+'</button>';}
-
+/* D3.5.2: a postponed gig or activity keeps its original date and says so. The tag
+   only goes where the status is not already on screen — a row that already reads
+   "Postponed" does not need to say it twice. */
+const isPostponed=e=>e.status==="Postponed"&&["gigs","activities"].includes(e.cat);
+const postponedTag=e=>isPostponed(e)?'<i class="ptag">Postponed</i>':"";
 /* weeks run Sunday–Saturday, the same as the Calendar page */
 const weekStart=s=>addD(s,-d2(s).getDay());
 function bucket(e){const d=nextOcc(e).date,ws=weekStart(TODAY);

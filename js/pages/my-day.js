@@ -3,17 +3,21 @@
    Three big buttons: Today, This Week, Next Week.
    Today opens category cards (like Home); tapping a card lists that category's items for today.
    This Week / Next Week list items grouped by day.
-   Which date counts:  Releases → Final submission · Content, Activities, Gigs → Date · Tasks → Due date.
+   Which date counts:  Content, Activities, Gigs → Date · Tasks → Due date.
+   D2.5.1: releases are not on My Day at all. Each step of a release is its own task
+   and turns up here on its own due date; release day belongs to the Calendar and to
+   the countdown on Home, where it stays something to look forward to.
    A Filter button narrows everything on My Day to certain categories and/or one person.
    HTML: built by vMyDay() below. CSS: css/pages/my-day.css (shared styles: css/base.css). */
 Object.assign(S,{dcat:null,mcats:[],mpp:"",mflt:false}); // My Day's own state: open category, filters
 const PERIODS={today:"Today",week:"This Week",next:"Next Week"};
-const MD_DESC={tasks:"Tasks due today.",songs:"Releases with a final submission today.",content:"Posts scheduled for today.",activities:"Activities happening today.",gigs:"Gigs and events today."};
-const PRE_SUBMIT=["Not Started","In Production","For Submission"]; // a release's final submission only matters before it's submitted
+const MD_CATS=ORDER.filter(c=>c!=="songs"); // D2.5.1
+const MD_DESC={tasks:"Tasks due today.",content:"Posts scheduled for today.",activities:"Activities happening today.",gigs:"Gigs and events today."};
 
 /* the one date My Day uses for each category */
-const dayDate=e=>e.cat==="songs"?e.final||"":e.cat==="tasks"?e.due||"":e.date||"";
-const whenLabel=e=>e.cat==="songs"?"Final submission":e.cat==="tasks"?"Due":ft(e.time)||"";
+const dayDate=e=>e.cat==="tasks"?e.due||"":e.date||"";
+/* D2.4.3: a task with a time says the time, not just "Due" */
+const whenLabel=e=>e.cat==="tasks"?"Due"+(e.dueTime?" · "+ft(e.dueTime):""):ft(e.time)||"";
 
 /* the dates each period covers (weeks run Sunday–Saturday, like the Calendar) */
 function range(k){const ws=weekStart(TODAY);return k==="today"?[TODAY,TODAY]:k==="week"?[addD(TODAY,1),addD(ws,6)]:[addD(ws,7),addD(ws,13)];}
@@ -23,22 +27,25 @@ const rangeTxt=k=>{const[a,b]=range(k);return k==="today"?shortDay(a):a>b?"This 
 /* everything you can see that isn't finished, after filters, split by its My Day date */
 const mdFiltered=()=>!!(S.mcats.length||S.mpp);
 function dayGroups(){const g={over:[],today:[],week:[],next:[]},[w0,w1]=range("week"),[n0,n1]=range("next");
- visible(S.user).filter(e=>!isFin(e)&&(!S.mcats.length||S.mcats.includes(e.cat))&&(!S.mpp||involved(e,S.mpp))).forEach(e=>{const d=dayDate(e);if(!d)return;
-  if(d<TODAY){if(e.cat!=="songs"||PRE_SUBMIT.includes(e.status))g.over.push(e);}
+ visible(S.user).filter(e=>e.cat!=="songs"&&!isFin(e)&&(!S.mcats.length||S.mcats.includes(e.cat))&&(!S.mpp||involved(e,S.mpp))).forEach(e=>{const d=dayDate(e);if(!d)return;
+  if(d<TODAY)g.over.push(e);
   else if(d===TODAY)g.today.push(e);else if(d>=w0&&d<=w1)g.week.push(e);else if(d>=n0&&d<=n1)g.next.push(e);});
  const byDate=(a,b)=>dayDate(a).localeCompare(dayDate(b))||(a.time||"").localeCompare(b.time||"");for(const k in g)g[k].sort(byDate);return g;}
 
-/* list rows showing the My Day date (not the song's release date) */
+/* list rows showing the My Day date.
+   D2.4.3: the same furniture as every other list — the time, the Overdue tag and
+   the plum dot — so nobody has to open an entry to find out what is late. */
 function mRow(e){const t=tone(e.status),w=whenLabel(e);
- return '<button class="row" data-act="open" data-id="'+e.id+'"><i class="bar" style="background:'+CAT[e.cat].c+'"></i><span><span class="t">'+H(e.title)+'</span><span class="m">'+H(mline(e))+'</span><span class="s" style="color:'+t[0]+'">'+H(sline(e))+'</span></span><span class="r">'+fmtS(dayDate(e))+(w?'<em>'+H(w)+'</em>':"")+'<br>'+ctag(e.cat)+'</span></button>';}
-function mTl(e){return '<button class="tlr" data-act="open" data-id="'+e.id+'"><span class="tm">'+H(whenLabel(e)||"Today")+'</span><i style="width:3px;align-self:stretch;border-radius:9px;background:'+CAT[e.cat].c+'"></i><span class="b"><b>'+H(e.title)+'</b><span class="mut" style="display:block;font-size:14px">'+H(mline(e))+'</span></span>'+ctag(e.cat)+'</button>';}
+ return '<button class="row" data-act="open" data-id="'+e.id+'"><i class="bar" style="background:'+CAT[e.cat].c+'"></i><span><span class="t">'+H(e.title)+pdot(aedAny(e))+'</span><span class="m">'+H(mline(e))+'</span><span class="s" style="color:'+t[0]+'">'+H(sline(e))+odueTag(e)+'</span></span><span class="r">'+fmtS(dayDate(e))+(w?'<em>'+H(w)+'</em>':"")+'<br>'+ctag(e.cat)+'</span></button>';}
+function mTl(e){const tm=e.cat==="tasks"?(e.dueTime?ft(e.dueTime):"Due"):(ft(e.time)||"Today");
+ return '<button class="tlr" data-act="open" data-id="'+e.id+'"><span class="tm">'+H(tm)+'</span><i style="width:3px;align-self:stretch;border-radius:9px;background:'+CAT[e.cat].c+'"></i><span class="b"><b>'+H(e.title)+pdot(aedAny(e))+'</b><span class="mut" style="display:block;font-size:14px">'+H(mline(e))+odueTag(e)+postponedTag(e)+'</span></span>'+ctag(e.cat)+'</button>';}
 
 /* ---- Filter button + panel (shared by every My Day screen) ---- */
 function mdFilterBtn(){const n=S.mcats.length+(S.mpp?1:0);
  return '<button class="btn big'+(n?" fon":"")+'" data-act="mflt" aria-expanded="'+S.mflt+'">'+sv('<path d="M4 6h16M7 12h10M10 18h4"/>')+'<span>Filter'+(n?" · "+n:"")+'</span></button>';}
 function mdFilterPanel(){
  if(S.mflt)return '<div class="fpanel"><div class="fhead"><b>Show only…</b><span style="display:flex;gap:8px"><button class="btn sm" data-act="mclear">Clear filters</button><button class="btn sm pri" data-act="mflt">Done</button></span></div>'+
-  '<div class="chips">'+ORDER.map(c=>'<button class="chip'+(S.mcats.includes(c)?" on":"")+'" data-act="mcat" data-c="'+c+'">'+CAT[c].pl+'</button>').join("")+'</div>'+
+  '<div class="chips">'+MD_CATS.map(c=>'<button class="chip'+(S.mcats.includes(c)?" on":"")+'" data-act="mcat" data-c="'+c+'">'+CAT[c].pl+'</button>').join("")+'</div>'+
   '<div class="tb"><select data-flt="mpp" aria-label="Person"><option value="">Anyone</option>'+MK.map(k=>'<option value="'+k+'"'+(S.mpp===k?" selected":"")+'>'+H(mn(k))+'</option>').join("")+'</select></div></div>';
  if(!mdFiltered())return"";
  return '<div class="fsum"><span>Showing only: <b>'+[S.mcats.map(c=>CAT[c].pl).join(", "),S.mpp?mn(S.mpp):""].filter(Boolean).join(" · ")+'</b></span><button class="linkbtn" data-act="mclear">Clear</button></div>';}
@@ -56,7 +63,7 @@ function vMyDay(){if(S.dview==="today"&&S.dcat)return vTodayCat(S.dcat);if(S.dvi
   next:nx?"First: "+H(nx.title)+" · "+whenTxt(dayDate(nx)):"Nothing planned yet"})+'</div>';}
 
 /* Today: one card per category, the same look as Home */
-function vToday(){const g=dayGroups(),cats=HUB.filter(h=>!S.mcats.length||S.mcats.includes(h[0]));
+function vToday(){const g=dayGroups(),cats=HUB.filter(h=>h[0]!=="songs"&&(!S.mcats.length||S.mcats.includes(h[0]))); // D2.5.1
  return backBar("My Day","dview",' data-k=""')+
  '<div class="pband today"><div><h1>Today</h1><p>'+rangeTxt("today")+' · '+g.today.length+' '+things(g.today.length)+(g.over.length?' · '+g.over.length+' overdue':'')+'</p></div><span class="acts">'+searchBtn()+mdFilterBtn()+'</span></div>'+mdFilterPanel()+
  '<div class="cards">'+cats.map(([c,label,icon])=>{const t=g.today.filter(e=>e.cat===c),o=g.over.filter(e=>e.cat===c);

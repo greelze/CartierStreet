@@ -2,11 +2,11 @@
 /* ENTRY PANEL
    The full-screen entry page: status, Edit / Delete, Drive, details, relationships. */
 /* ---- drawer ---- */
-const DET={songs:[["Release ID","eid"],["Type","type"],["Artist","people"],["Tracklist","tracks"],["Start date","start"],["Release date","release"],["Final submission","final"]],
- content:[["Content ID","eid"],["Type","type"],["Platforms","platforms"],["Account","account"],["Phase","phase"],["Date & time","dt"],["Members","people"]],
- activities:[["Activity ID","eid"],["Type","type"],["Organizer","organizer"],["Date & time","dt"],["Members","people"],["Venue","venue"],["Address","address"]],  // the Activity Details block adds notes and the folder link (S26)
- gigs:[["Gig / event ID","eid"],["Type","type"],["Organizer","orgKind"],["Organizer name","orgName"],["Date & time","dt"],["Members","people"],["Venue","venue"],["Address","address"]],
- tasks:[["Task ID","eid"],["Description","desc"],["Assigned to","people"],["Due date","due"],["Time","dueTime"],["Priority","priority"],["Created by","by"]]};
+const DET={songs:[["Type","type"],["Artist","people"],["Tracklist","tracks"],["Start date","start"],["Release date","release"],["Final submission","final"]],
+ content:[["Type","type"],["Platforms","platforms"],["Account","account"],["Phase","phase"],["Date & time","dt"],["Members","people"]],
+ activities:[["Type","type"],["Organizer","organizer"],["Date & time","dt"],["Members","people"],["Venue","venue"],["Address","address"]],  // the Activity Details block adds notes and the folder link (S26)
+ gigs:[["Type","type"],["Organizer","orgKind"],["Organizer name","orgName"],["Date & time","dt"],["Members","people"],["Venue","venue"],["Address","address"]],
+ tasks:[["Description","desc"],["Assigned to","people"],["Due date","due"],["Time","dueTime"],["Priority","priority"],["Created by","by"]]};
 function dv(e,k){const v=e[k];if(k==="dt")return fmtM(e.date)+" · "+ft(e.time);if(k==="dueTime")return v?H(ft(v)):"";
  if(k==="people")return(v||[]).map(x=>H(mn(x))+(e.cat==="tasks"&&(e.done||[]).includes(x)?' <i class="dtick">✓ done</i>':"")).join(", "); // S29
  if(k==="organizer")return(v||[]).map(x=>H(mn(x))).join(", ");if(k==="by")return v?H(mn(v)):"";
@@ -32,6 +32,7 @@ function vDrawer(){const e=live(S.open);if(!e)return"";const c=CAT[e.cat],t=tone
  '<div class="dwrap"><div class="dh">'+ctag(e.cat)+'<span class="eid">'+H(e.eid)+'</span><h2>'+H(e.title)+pdot(aedAt(e,"title"))+'</h2>'+
  '<div class="stat">'+stat+(cd?'<span class="cdn">'+cd+'</span>':"")+'</div>'+(e.cat==="songs"?'<div class="pipe">'+PIPE.map((s,i)=>'<i style="background:'+(i<=idx?t[0]:"#E4E1E8")+'"></i>').join("")+'</div>':"")+
  (ed?'<div class="acts"><button class="btn pri" data-act="edit" data-id="'+e.id+'">Edit</button><button class="btn dan" data-act="del" data-id="'+e.id+'">Delete</button></div>':'<div class="ro">View only — '+(canSee(e,S.user)&&e.by&&e.by!==S.user?"only "+H(mn(e.by))+" or an admin can change this":"you are not on this entry")+'.</div>')+'</div>'+
- '<div class="db"><div class="dfull">'+vTaskBar(e)+vLate(e)+vSFA(e)+vReview(e)+vRD(e)+vPP(e)+vGD(e)+vAD(e)+'</div><div class="dfiles"><h4>Files &amp; resources</h4>'+driveCard(e)+vPostLinks(e)+'</div>'+
+ '<div class="db"><div class="dfull">'+vDraftBar(e)+vTaskBar(e)+vLate(e)+vSFA(e)+vReview(e)+vRD(e)+vPP(e)+vGD(e)+vAD(e)+'</div><div class="dfiles"><h4>Files &amp; resources</h4>'+driveCard(e)+vPostLinks(e)+'</div>'+
  '<div class="ddet"><h4>Details</h4><dl class="dl">'+DET[e.cat].map(f=>{const v=dv(e,f[1]);return v?"<dt>"+f[0]+pdot(aedAt(e,f[1]))+"</dt><dd>"+v+"</dd>":""}).join("")+'</dl></div>'+
- '<div class="drel">'+vRels(e)+'</div></div></div></aside>';}
+ '<div class="drel">'+vRels(e)+'</div>'+
+ '<div class="dcom">'+vRecap(e)+vComments(e)+'</div></div></div></aside>';} // S45, S47, S39

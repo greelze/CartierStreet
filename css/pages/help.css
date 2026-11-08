@@ -1,0 +1,43 @@
+/* The three Settings pages (S42 My profile, S43 Help, S48 Label Links)
+   HTML: js/pages/profile.js, js/pages/help.js, js/pages/links.js */
+
+/* ---- My profile (S42) ---- */
+.pfcard{display:flex;align-items:center;gap:13px;margin:4px 0 16px;padding:14px 16px;border:1px solid var(--ln);border-radius:13px;background:#fff}
+.pfcard b{display:block;font-size:16px;font-weight:600}
+.pfcard span{font-size:12.5px;color:var(--t2)}
+.pfg .rdf{margin-bottom:0}
+.pfg{margin-bottom:12px}
+
+/* ---- Label Links (S48) ---- */
+.llg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:6px 0 4px}
+.llc{display:flex;flex-direction:column;gap:9px;padding:17px 18px;border:1px solid var(--ln);border-radius:14px;background:#fff;min-width:0}
+.llc.empty{background:var(--soft)}
+.llc h4{font-size:16px}
+.llc p{font-size:13.5px;color:var(--t2);flex:1}
+.llnote{flex:none!important;padding:8px 10px;border-radius:9px;background:var(--soft);font-size:12.5px!important}
+.llc .btn{justify-content:center}
+.llmiss{font-size:13px;font-weight:600;color:var(--t3);text-align:center;padding:9px}
+.llf{display:flex;flex-direction:column;gap:8px;padding-top:11px;border-top:1px solid var(--ln)}
+.llf label b{display:block;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.llf input{width:100%;padding:8px 10px;border:1px solid var(--ln);border-radius:9px;background:#fff;font-size:13.5px}
+
+/* ---- How Plum Room works (S43) ---- */
+.hpp{margin-top:4px}
+.hpb{padding:4px 17px 18px;background:var(--soft)}
+.hpb p{font-size:14.5px;line-height:1.65;margin-bottom:11px;max-width:74ch}
+.hpl{margin:0 0 12px;padding-left:19px}
+.hpl li{font-size:14.5px;line-height:1.6;margin-bottom:6px;max-width:72ch}
+.hps{margin:0 0 12px;padding-left:19px}
+.hps li{font-size:14.5px;line-height:1.5;margin-bottom:9px}
+.hps li b{font-weight:700}
+.hps li span{display:block;font-size:13px;color:var(--t2);margin-top:2px}
+.hpd{margin:0 0 10px}
+.hpd dt{margin-top:11px;font-size:14px;font-weight:700}
+.hpd dd{margin:3px 0 0;font-size:14px;line-height:1.6;color:var(--t2);max-width:72ch}
+.hpd .ctag{font-size:12px}
+.hptip dt{font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--t3)}
+.hpb .tip{display:inline-grid;vertical-align:middle}
+.hpb .pdot{display:inline-block;vertical-align:middle}
+
+@media(max-width:1100px){.llg{grid-template-columns:1fr}}
+@media(max-width:860px){.hpb{padding:4px 13px 15px}.llc{padding:15px 16px}}

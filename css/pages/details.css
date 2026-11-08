@@ -11,6 +11,18 @@
 /* the sticky "boxes left" count (F1.8) */
 .rdbar{margin-left:auto;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:99px;background:#FBE9EF;color:var(--crit)}
 .rdbar.ok{background:#E4F4F1;color:#137547}
+/* "Go to first empty" beside the count (F1.9, S40) */
+.rdgo{margin-left:auto;font-size:12.5px}
+.rdh .rdgo+.rdbar{margin-left:12px}
+/* what to do about a red box (P3) */
+.rdtodo{font-style:normal;display:block;margin-top:5px;font-size:12.5px;font-weight:500;color:var(--crit)}
+.rdck .rdtodo{margin-top:4px}
+/* what a box is doing with what you just typed (S40) */
+.sv{font-style:normal;font-size:11px;font-weight:600;margin-left:7px;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.sv.wait{background:var(--soft);color:var(--t3)}
+.sv.ok{background:#E4F4F1;color:#137547}
+.sv.bad{background:#FBE9EF;color:var(--crit)}
+.sv.warn{background:#FDF7EC;color:#9A6200}
 .rdnote{font-size:13px;color:var(--t2);margin:8px 0 0}
 .rdnote.ro{padding:9px 12px;border-radius:9px;background:var(--soft)}
 /* the part tabs */
@@ -78,6 +90,23 @@
 .pprow .b span{font-size:12.5px;color:var(--t2)}
 .pprow .s{font-size:12.5px;font-weight:600;flex:none}
 .ppempty{font-size:13px;color:var(--t3);margin-bottom:7px}
+/* ---- a row typed straight into the plan (S4) ---- */
+.pprow{padding:0;border:0;background:none;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ppopen{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--ln);border-radius:10px;background:#fff;text-align:left}
+.ppopen:hover{background:var(--soft)}
+.pprow.draft .ppopen{border-style:dashed;background:var(--soft)}
+.dtag{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-left:7px;padding:2px 7px;border-radius:99px;background:var(--b);color:var(--cr);vertical-align:middle}
+.ppwait{flex:none;font-size:12px;font-weight:600;color:var(--t3)}
+.ppok{flex:none}
+/* the box you type a row into */
+.ppnew{display:flex;gap:8px;margin-top:8px}
+.ppnew input{flex:1;min-width:0;padding:9px 11px;border:1px dashed var(--ln);border-radius:10px;background:#fff;font-size:13.5px}
+.ppnew input:focus{border-style:solid}
+@media(max-width:860px){
+ .pprow{flex-wrap:wrap}
+ .pprow .ppok,.pprow .ppwait{width:100%;text-align:center}
+ .ppnew{flex-direction:column}
+}
 .ppph.bad .ppempty{color:var(--crit)}
 /* ---- post links (S19) ---- */
 .plk{margin-top:10px;padding:12px;border:1px solid var(--ln);border-radius:11px;background:#fff}
@@ -90,7 +119,31 @@
 .plrow .rm:hover{background:var(--crit);color:#fff}
 /* ---- the Overdue tag on a post whose time has passed with no link (S20) ---- */
 .odue{font-style:normal;font-size:11px;font-weight:700;margin-left:7px;padding:2px 7px;border-radius:99px;background:#FBE9EF;color:var(--crit)}
-
+/* D2.5.2: the one question an overdue gig or activity is really asking */
+.odask{font-style:normal;font-size:12px;font-weight:500;margin-left:7px;color:var(--crit)}
+/* D3.5.2: a postponed gig keeps its original date and says so */
+.ptag{font-style:normal;font-size:11px;font-weight:700;margin-left:7px;padding:2px 7px;border-radius:99px;background:#FDF2DF;color:#9A6200}
+/* ---- the recaps (S45, S47) ---- */
+.drc{margin-bottom:30px}
+.rcw{margin-top:14px;padding:14px 16px;border:1px solid var(--ln);border-radius:12px;background:#fff}
+.rcw.soon{background:var(--soft)}
+.rcw.now{border-color:var(--blue)}
+.rcw.done{border-color:#137547;background:#F3FAF7}
+.rcwh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.rcwh b{font-size:14.5px;font-weight:700}
+.rctick,.rcnow,.rcsoon{font-style:normal;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px}
+.rctick{background:#E4F4F1;color:#137547}
+.rcnow{background:#F4F8FE;color:var(--blue)}
+.rcsoon{background:#EAE7EE;color:var(--t2)}
+.rcwait{font-size:13px}
+.rctext{margin-top:16px}
+/* were we paid (S47) */
+.rcpaid{margin-top:16px;padding:13px 15px;border:1px solid var(--ln);border-radius:11px;background:#fff}
+.rcpaid.yes{border-color:#137547;background:#F3FAF7}
+.rcpaid.no{border-color:#9A6200;background:#FDF7EC}
+.rcpaid b{display:block;font-size:14px;font-weight:600;margin-bottom:8px}
+.rcpaid .rctodo{font-size:12.5px;color:#9A6200;margin-top:8px}
+@media(max-width:860px){.rcw{padding:12px 13px}}
 /* ---- the Cartier St. review (W2, W4, F2.3, RQ9) ---- */
 .rvw{margin-top:24px;padding:15px 17px;border-radius:12px;border:1px solid var(--ln);background:#fff}
 .rvw h5{font-size:14.5px;font-weight:700;margin-bottom:4px}
@@ -123,6 +176,7 @@
 .rqa{display:flex;gap:7px;flex:none}
 @media(max-width:860px){.rvwa .btn,.rqa .btn{flex:1}}
 
+
 /* ---- Gig Details (S3) and Activity Details (S26) ---- */
 .dgd,.dad{margin-top:30px}
 .rdp.open{padding:2px 15px 14px;background:var(--soft)}
@@ -131,6 +185,26 @@
 .gdg h5{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3)}
 @media(max-width:860px){.rdp.open{padding:2px 12px 12px}}
 
+/* ---- the set list and the gear (S44) ---- */
+.slist{margin:0 0 10px;padding:0;list-style:none;counter-reset:none}
+.srow{display:flex;align-items:center;gap:10px;padding:9px 11px;margin-bottom:6px;border:1px solid var(--ln);border-radius:10px;background:#fff}
+.srow.rel{border-color:var(--b);background:#F8F4F9}
+.sn{flex:none;width:22px;height:22px;border-radius:99px;background:var(--soft);color:var(--t2);font-size:12px;font-weight:700;display:grid;place-items:center}
+.srow.rel .sn{background:var(--b);color:var(--cr)}
+.st{flex:1;min-width:0;font-size:14.5px;font-weight:500;overflow-wrap:anywhere}
+.stag{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-left:8px;padding:2px 6px;border-radius:99px;background:var(--b);color:var(--cr)}
+.sa{display:flex;gap:4px;flex:none}
+.smv,.srow .rm{width:26px;height:26px;border-radius:8px;background:var(--soft);color:var(--t2);font-size:13px;line-height:1;display:grid;place-items:center;padding:0}
+.smv:hover:not([disabled]),.srow .rm:hover{background:var(--b);color:var(--cr)}
+.smv[disabled]{opacity:.35}
+.slempty{font-size:13px;margin-bottom:10px}
+.slnew{display:flex;gap:8px}
+.slnew input{flex:1;min-width:0;padding:9px 11px;border:1px dashed var(--ln);border-radius:10px;background:#fff;font-size:13.5px}
+.slnew input:focus{border-style:solid}
+.slpick{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:9px}
+.slpick .mut{font-size:12.5px}
+.sltech{margin-top:14px}
+@media(max-width:860px){.slnew{flex-direction:column}.srow{flex-wrap:wrap}.sa{width:100%;justify-content:flex-end}}
 /* ---- task buttons (S29) and approval (S31) ---- */
 .tbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px;padding:14px 16px;border:1px solid var(--ln);border-radius:12px;background:#fff}
 .btn.ok{background:#137547;color:#fff;border-color:#137547}
@@ -144,6 +218,7 @@
  .tbar .btn{width:100%;justify-content:center}
  .tcount{margin-left:0;text-align:center}
 }
+
 /* ---- automatic tasks (S30) ---- */
 .rvw.auto{border-color:var(--b);background:#F8F4F9}
 .rvw.auto h5{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:var(--b);font-weight:600;font-size:13.5px}

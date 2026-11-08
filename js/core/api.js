@@ -5,6 +5,8 @@
    this file fills DB from Supabase and writes every change back. */
 
 const MID={},MUSER={},VID={},VNAME={},LABEL_LINKS={}; // …and Cartier St.’s own social links
+const CBOOK=[]; // S38: the full Contacts book. Admins only — it comes back empty for everyone else.
+const LABEL_FOLDERS={}; // S48: Resources, Tracks and Showmixes
 const EID_PFX={songs:"CS",content:"CT",activities:"ACT",gigs:"GE",tasks:"TSK"};
 const clear=o=>Object.keys(o).forEach(k=>delete o[k]);
 const hhmm=t=>t?String(t).slice(0,5):"";
@@ -13,22 +15,37 @@ function must(r){if(r.error)throw r.error;return r.data;}
 /* ---- load everything the signed-in member is allowed to see ---- */
 async function loadAll(){
  const q=t=>db.from(t).select("*");
- const res=await Promise.all([q("members"),q("venues"),q("entries"),q("songs"),q("song_tracks"),q("content"),q("activities"),q("gigs"),q("tasks"),q("entry_members"),q("entry_links"),q("artist_links"),
+ const res=await Promise.all([q("members"),q("contacts_public"),q("entries"),q("songs"),q("song_tracks"),q("content"),q("activities"),q("gigs"),q("tasks"),q("entry_members"),q("entry_links"),q("artist_links"),q("unavailable"),q("venues"),db.from("comments").select("*").order("created_at"),q("schedule_overrides"),q("label_links"),
   db.from("notifications").select("*").order("created_at",{ascending:false}).limit(200)]);
-  const [mem,ven,ent,son,trk,con,act,gig,tsk,em,lnk,soc,ntf]=res.map(must);
+  const [mem,ven,ent,son,trk,con,act,gig,tsk,em,lnk,soc,una,cbk,cmt,ovr,lbl,ntf]=res.map(must);
 
  // members → M, MK, ARTISTS (filled in place so the form field lists stay connected)
  clear(M);clear(MID);clear(MUSER);MK.length=0;ARTISTS.length=0;const MCODE={};
  mem.sort((a,b)=>a.is_admin-b.is_admin||a.full_name.localeCompare(b.full_name)).forEach(m=>{
-  M[m.code]={n:m.full_name,c:m.color,adm:m.is_admin?1:0};if(m.photo_url)M[m.code].photo=m.photo_url;
+  M[m.code]={n:m.full_name,c:m.color,adm:m.is_admin?1:0,bio:m.bio||"",photos:m.photos_link||""};if(m.photo_url)M[m.code].photo=m.photo_url; // bio and photos = the profile (S42)
   MID[m.code]=m.id;MUSER[m.code]=m.user_id;MCODE[m.id]=m.code;M[m.code].art=m.is_artist??!m.is_admin;if(m.code!==LABEL_CODE)MK.push(m.code);if(M[m.code].art)ARTISTS.push(m.code);}); // Artists list = members marked is_artist
 
+ // Label Links → LABEL_FOLDERS (S48)
+ clear(LABEL_FOLDERS);lbl.forEach(r=>LABEL_FOLDERS[r.slot]={url:r.url||"",note:r.note||""});
  // social links → M[code].links and LABEL_LINKS (Cartier St. itself)
  clear(LABEL_LINKS);soc.forEach(r=>{const c=MCODE[r.member_id];if(c)M[c].links=r;else Object.assign(LABEL_LINKS,r);});
 
- // venues → VENUES
+ // the Contacts book (S38). Everyone reads the four public columns through
+ // contacts_public; only an admin gets the whole rows, and for anyone else
+ // "venues" comes back empty because the policy says so.
  VENUES.length=0;clear(VID);clear(VNAME);
- ven.sort((a,b)=>a.name.localeCompare(b.name)).forEach(v=>{VENUES.push([v.name,v.address]);VID[v.name]=v.id;VNAME[v.id]=v.name;});
+ ven.sort((a,b)=>a.name.localeCompare(b.name)).forEach(v=>{
+  VNAME[v.id]=v.name;VID[v.name]=v.id;
+  if((v.contact_type||"Venue")==="Venue")VENUES.push([v.name,v.address||""]);}); // only venues are offered as venues
+ CBOOK.length=0;
+ cbk.sort((a,b)=>a.name.localeCompare(b.name)).forEach(c=>CBOOK.push({id:c.id,name:c.name,
+  type:c.contact_type||"Venue",address:c.address||"",person:c.contact_person||"",
+  phone:c.phone||"",email:c.email||"",notes:c.notes||""}));
+
+ // unavailable times → DB.unav (S41). Everyone's, because everyone sees everyone's.
+ DB.unav=una.map(r=>({id:r.id,who:MCODE[r.member_id]||null,from:r.start_date,to:r.end_date,
+  all:!!r.all_day,st:hhmm(r.start_time),en:hhmm(r.end_time),by:MCODE[r.created_by]||null}))
+  .filter(x=>x.who).sort((a,b)=>a.from.localeCompare(b.from)||(a.st||"00:00").localeCompare(b.st||"00:00"));
 
  // entries + their detail rows, people and tracklists
  const byEntry=rows=>Object.fromEntries(rows.map(r=>[r.entry_id,r]));
@@ -43,6 +60,11 @@ async function loadAll(){
  DB.trash=all.filter(e=>e.deletedAt).sort((a,b)=>b.deletedAt.localeCompare(a.deletedAt));
  DB.rels=lnk.map(l=>({id:l.id,a:l.entry_a,b:l.entry_b}));
  DB.notifs=ntf.map(n=>({id:n.id,actor:MCODE[n.actor_id]||null,ref:n.entry_id,unread:n.is_read?0:1,txt:n.message,g:ngroup(n.created_at),w:nwhen(n.created_at)}));
+ // comments, oldest first so the thread reads top to bottom (S39)
+ DB.comments=cmt.map(c=>({id:c.id,ref:c.entry_id,who:MCODE[c.member_id]||null,body:c.body,at:c.created_at})).filter(c=>c.who);
+ // bookings made over someone's unavailable time, for the Admin overview (D6.9, S46)
+ DB.overrides=ovr.map(o=>({id:o.id,ref:o.entry_id,who:MCODE[o.member_id]||null,
+  by:MCODE[o.created_by]||null,note:o.note,at:o.created_at})).filter(o=>o.who);
 }
 
 /* the Release Details boxes that live on the release itself, and one per track (D6.1.10) */
@@ -63,17 +85,21 @@ const toTrack=t=>({pos:t.position,title:t.title||"",feat:t.featuring||"",bio:t.s
 /* one database row → the entry shape the pages already use */
 function toEntry(r,s,people,organizer,tracks,MCODE){
  const e={id:r.id,eid:r.eid,cat:r.category,title:r.title,status:r.status,by:MCODE[r.created_by]||null,
-  drive:r.drive_status||"none",driveFiles:r.drive_file_count||0,deletedAt:r.deleted_at,made:r.created_at||"",aed:r.admin_edits||null,people,organizer}; // made = when it was created (D1.0.5); aed = admin-edited fields (S34)
+  drive:r.drive_status||"none",driveFiles:r.drive_file_count||0,deletedAt:r.deleted_at,made:r.created_at||"",
+  moved:r.updated_at||r.created_at||"",aed:r.admin_edits||null,people,organizer}; // made = when it was created (D1.0.5); moved = last change of any kind (S46); aed = admin-edited fields (S34)
  const ev={date:s.event_date||"",time:hhmm(s.event_time),venue:VNAME[s.venue_id]||"",address:s.address||""};
  if(r.category==="songs")Object.assign(e,{type:s.release_type||"Single",sub:s.sub_status||r.status,start:s.start_date||"",release:s.release_date||"",final:s.final_submission_date||"",
   tracks:tracks.map(t=>t.title),trk:tracks.map(toTrack),rd:toRD(s),pp:toPP(s),ap:toAP(s,MCODE),
-  req:Array.isArray(s.edit_requests)?s.edit_requests:[]}); // rd = Release Details (D6.1.10); pp = the plan (D6.1.11); ap = the review (W4); req = change requests (F3.5)
+  req:Array.isArray(s.edit_requests)?s.edit_requests:[],rc:toRC(s,"songs")}); // rd = Release Details (D6.1.10); pp = the plan (D6.1.11); ap = the review (W4); req = change requests (F3.5); rc = the recap (S45)
  if(r.category==="content")Object.assign(e,ev,{type:s.content_type||"Video",platforms:s.platforms||[],
-  account:s.account||ACCOUNTS[0],phase:s.phase||"",links:Array.isArray(s.post_links)?s.post_links:[]}); // S18, S19
+  account:s.account||ACCOUNTS[0],phase:s.phase||"",links:Array.isArray(s.post_links)?s.post_links:[],
+  draft:!!s.is_draft}); // S18, S19; draft = typed into the Promotional Calendar, not yet approved (S4)
  if(r.category==="activities")Object.assign(e,ev,{type:s.activity_type||"Other",
   ad:{notes:s.notes||"",folder:s.folder_link||""}}); // S26
  if(r.category==="gigs")Object.assign(e,ev,{type:s.gig_type||"Other",typeNote:s.gig_group||"",orgKind:s.organizer_kind||"",orgName:s.organizer_name||"",
-  gd:{call:hhmm(s.call_time),fee:s.fee==null?"":s.fee,cname:s.contact_name||"",cphone:s.contact_phone||"",poster:s.poster_link||""}}); // S3
+  gd:{call:hhmm(s.call_time),fee:s.fee==null?"":s.fee,cname:s.contact_name||"",cphone:s.contact_phone||"",poster:s.poster_link||""},
+  rc:toRC(s,"gigs")}); // S3; rc = the recap (S47)
+ if(r.category==="gigs"){e.gd.set=Array.isArray(s.set_list)?s.set_list:[];e.gd.tech=s.tech_notes||"";} // S44
  if(r.category==="tasks")Object.assign(e,{desc:s.description||"",due:s.due_date||"",priority:s.priority||"Medium",
   dueTime:hhmm(s.due_time),need:!!s.needs_approval,auto:!!s.is_auto,     // S35, S31, S30
   autoKind:s.auto_kind||"",src:s.source_entry||"",                       // S30: what it belongs to
@@ -93,7 +119,7 @@ function nextEid(cat,bump){const p=EID_PFX[cat]+TODAY.slice(2,4),re=new RegExp("
 /* the detail-table row for a form object */
 function subRow(o){const ev={event_date:o.date||null,event_time:o.time||null,venue_id:VID[o.venue]||null,address:o.address||null};
  return {songs:{release_type:o.type,sub_status:o.sub||o.status,start_date:o.start||null,release_date:o.release||null,final_submission_date:o.final||null,is_past:!!o.past},
-  content:Object.assign({content_type:o.type,platforms:o.platforms,account:o.account||null,phase:o.phase||null,post_links:o.links||[]},ev),
+  content:Object.assign({content_type:o.type,platforms:o.platforms,account:o.account||null,phase:o.phase||null,post_links:o.links||[],is_draft:!!o.draft},ev),
   activities:Object.assign({activity_type:o.type},ev),
   gigs:Object.assign({gig_type:o.type,gig_group:o.typeNote,organizer_kind:o.orgKind,organizer_name:o.orgName||null},ev),
   tasks:{description:o.desc||null,due_date:o.due||null,due_time:o.dueTime||null,priority:o.priority,needs_approval:!!o.need}}[o.cat];}
@@ -186,6 +212,80 @@ const askTaskAgain=async id=>must(await db.from("tasks")
 /* one Gig Details box (S3) and one Activity Details box (S26) */
 const saveGD=async(id,key,val)=>must(await db.from("gigs").update({[GD_COL[key]]:val===""?null:val}).eq("entry_id",id));
 const saveAD=async(id,key,val)=>must(await db.from("activities").update({[AD_COL[key]]:val===""?null:val}).eq("entry_id",id));
+
+/* S4: Cartier St. approving a draft post, or sending one back. The trigger in
+   patch 21 refuses this from anyone but an admin, whatever the page allows. */
+const setDraft=async(id,on)=>must(await db.from("content").update({is_draft:!!on}).eq("entry_id",id));
+
+/* ---- My profile and Label Links (S42, S48) ---- */
+const PF_COL={bio:"bio",photos:"photos_link"};
+const saveProfile=async(code,key,val)=>must(await db.from("members")
+ .update({[PF_COL[key]]:String(val||"").trim()||null}).eq("id",MID[code]));
+const saveLabelLink=async(slot,key,val)=>must(await db.from("label_links")
+ .update({[key]:String(val||"").trim()||null}).eq("slot",slot));
+
+/* ---- the recaps (S45, S47) ----
+   One map, both directions: the page uses short keys, the database uses the
+   column names, and the stamp is what the engine reads to close the task. */
+const RC_COL={d7s:"d7_streams",d7v:"d7_saves",d7p:"d7_playlists",d7At:"d7_at",
+ d28s:"d28_streams",d28v:"d28_saves",d28p:"d28_playlists",d28At:"d28_at",
+ worked:"recap_worked",change:"recap_change",
+ turnout:"turnout",wentWell:"went_well",gigChange:"gig_change",photos:"photos_link",
+ paid:"paid",at:"recap_at"};
+const RC_KEYS={songs:["d7s","d7v","d7p","d7At","d28s","d28v","d28p","d28At","worked","change"],
+ gigs:["turnout","wentWell","gigChange","photos","paid","at"]};
+function toRC(s,cat){const o={};RC_KEYS[cat].forEach(k=>{const v=s[RC_COL[k]];
+ o[k]=v==null?(k==="paid"?null:""):v});return o;}
+const saveRecap=async(e,key,val)=>{const set={};
+ set[RC_COL[key]]=(val===""||val===undefined)?null:val;
+ /* the stamp rides along with the first answer in its window, so the page and
+    the engine can never disagree about whether a recap was done */
+ const sk=["d7s","d7v","d7p"].includes(key)?"d7At"
+   :["d28s","d28v","d28p"].includes(key)?"d28At"
+   :e.cat==="gigs"?"at":null;
+ if(sk&&e.rc&&e.rc[sk])set[RC_COL[sk]]=e.rc[sk];
+ return must(await db.from(e.cat==="gigs"?"gigs":"songs").update(set).eq("entry_id",e.id));};
+
+/* ---- comments (S39, D6.6) ----
+   There is no update: a comment can be taken back, never rewritten. */
+const addComment=async(entryId,body)=>must(await db.from("comments")
+ .insert({entry_id:entryId,member_id:MID[S.user],body:body}));
+const delComment=async id=>must(await db.from("comments").delete().eq("id",id));
+
+/* ---- the Contacts book (S38, D4.8) ----
+   Writing to it is an admin's: the policies refuse everyone else. add_venue is
+   the one way in for anybody else, and it only ever makes a bare venue. */
+const cbRow=f=>({name:String(f.name||"").trim(),contact_type:f.type,
+ address:String(f.address||"").trim()||null,contact_person:String(f.person||"").trim()||null,
+ phone:String(f.phone||"").trim()||null,email:String(f.email||"").trim()||null,
+ notes:String(f.notes||"").trim()||null});
+const saveContact=async f=>f.id
+ ? must(await db.from("venues").update(cbRow(f)).eq("id",f.id))
+ : must(await db.from("venues").insert(Object.assign({created_by:MID[S.user]},cbRow(f))));
+const delContact=async id=>must(await db.from("venues").delete().eq("id",id));
+/* S44: the set list, written whole every time — it is one ordered list */
+const saveSetList=async(id,l)=>must(await db.from("gigs").update({set_list:l}).eq("entry_id",id));
+/* D6.8: the venue's contact person and phone copied onto a gig */
+const saveGigContact=async(id,set)=>must(await db.from("gigs").update(set).eq("entry_id",id));
+/* D4.8: an artist typing a venue the list did not have. The function makes the
+   row and hands back its id, or the id of the one already there. */
+async function addVenue(name,address){
+ const r=await db.rpc("add_venue",{p_name:name,p_address:address||null});
+ if(r.error)throw r.error;return r.data;}
+
+/* ---- Unavailable Dates (S41, D6.9) ----
+   The row carries no title and no reason, so there is nothing here to write
+   but the dates and the hours. The hours are cleared when it is all day, so a
+   block can never be half one thing and half the other. */
+const unavRow=o=>({start_date:o.from,end_date:o.to,all_day:!!o.all,
+ start_time:o.all?null:o.st,end_time:o.all?null:o.en});
+const saveUnav=async o=>o.id
+ ? must(await db.from("unavailable").update(unavRow(o)).eq("id",o.id))
+ : must(await db.from("unavailable").insert(Object.assign({member_id:MID[o.who],created_by:MID[S.user]},unavRow(o))));
+const delUnav=async id=>must(await db.from("unavailable").delete().eq("id",id));
+/* the record left behind when an admin books someone over their own time (D6.9) */
+const logOverride=async(entryId,codes,note)=>must(await db.from("schedule_overrides")
+ .insert(codes.filter(c=>MID[c]).map(c=>({entry_id:entryId,member_id:MID[c],note:note,created_by:MID[S.user]}))));
 
 /* RQ10: the artist's answer to "is it showing in Spotify for Artists?" */
 const answerSFA=async(id,seen)=>{const r=await db.rpc("answer_sfa",{p_entry:id,p_seen:seen});if(r.error)throw r.error;};

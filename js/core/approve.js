@@ -41,7 +41,7 @@ function vReview(e){if(e.cat!=="songs"||isPast(e))return"";
  if(e.status==="For Submission"&&(own||adm))return '<div class="rvw todo"><h5>Before you submit to Cartier St.</h5>'+
   '<p>'+(left?left+" box"+(left===1?"":"es")+" still to fill across Release Details and the Promotional Plan."
          :"Everything is filled in. Set the step to “Submitted to Cartier St.” above when you are ready.")+'</p>'+
-  (left?'<div class="rvwa"><button class="btn" data-act="rdjump">Show me what is left</button></div>':"")+'</div>';
+  (left?'<div class="rvwa"><button class="btn" data-act="rdjump">Go to first empty</button></div>':"")+'</div>'; // F1.9
  return "";}
 
 /* RQ10: Spotify can take a few days after the distributor to show a release.

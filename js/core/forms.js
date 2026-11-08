@@ -34,15 +34,18 @@ function fld(f){const k=f[0],t=f[2],F=S.form,v=F[k],er=F.errs[k],opt=(x,c)=>"<op
  if(F.cat==="songs"&&F.past&&(k==="status"||k==="sub"))return"";           // F5.2: it is already out
  if(t==="pseg"&&F.mode==="edit")return"";                                  // only asked when it is first added
  if(k==="orgName"&&F.orgKind==="Cartier St. Organized")return""; // our own gig: the organizer is us (S14)
+  if(t==="v")return vVenueField(F);                             // D4.8: type-to-search, not a fixed list
  if(k==="status"&&t==="s")o=statusOptions(F.cat,F); // e.g. Awaiting Payment only on booked gigs (S12)
- if(t==="t")h='<input data-f="'+k+'" value="'+H(v)+'">';else if(t==="a"||t==="tr")h='<textarea rows="4" data-f="'+k+'">'+H(v)+'</textarea>';
+ /* S37: a short gray example in every empty box, as a placeholder — it goes
+    the moment someone types and never counts as an answer. */
+ const fg=((FORM_EG[F.cat]||{})[k]||EG[k]),eg=fg?' placeholder="'+H(fg)+'"':"";
+ if(t==="t")h='<input data-f="'+k+'"'+eg+' value="'+H(v)+'">';else if(t==="a"||t==="tr")h='<textarea rows="4" data-f="'+k+'"'+eg+'>'+H(v)+'</textarea>';
  else if(t==="d"||t==="tm")h='<input type="'+(t==="d"?"date":"time")+'" data-f="'+k+'"'+(k==="release"&&F.cat==="songs"?(F.past?' max="'+TODAY+'"':' min="'+addD(TODAY,MIN_LEAD)+'"'):"")+' value="'+H(v)+'">';
  else if(t==="seg")h='<div class="seg" role="radiogroup" aria-label="'+f[1]+'">'+o.map(x=>'<button type="button" role="radio" aria-checked="'+(x===v)+'" class="'+(x===v?"on":"")+'" data-act="songtype" data-v="'+x+'">'+x+'</button>').join("")+'</div><p class="hintline">'+TRACK_RULES[v].help+'</p>';
  else if(t==="pseg"){const on=x=>(x===PAST_OPTS[1])===!!F.past; // F5.2
   h='<div class="seg" role="radiogroup" aria-label="'+f[1]+'">'+o.map(x=>'<button type="button" role="radio" aria-checked="'+on(x)+'" class="'+(on(x)?"on":"")+'" data-act="pastseg" data-v="'+x+'">'+x+'</button>').join("")+'</div><p class="hintline">'+(F.past?"It is already out, so it goes straight to Released and skips the Cartier St. review.":"It will go through the usual steps and the Cartier St. review.")+'</p>';}
  else if(t==="trk")h=trackList(F);
  else if(t==="s")h='<select data-f="'+k+'">'+o.map(x=>opt(x,v)).join("")+'</select>';else if(t==="sub")h='<select data-f="sub">'+SONG_STATUS[F.status].map(x=>opt(x,v)).join("")+'</select>';
- else if(t==="v")h='<select data-f="venue">'+VENUES.map(x=>opt(x[0],v)).join("")+'</select>';
  else if(t==="g")h='<select data-f="type">'+GIG_TYPES.map(g=>'<optgroup label="'+g[0]+'">'+g[1].map(x=>opt(x,v)).join("")+'</optgroup>').join("")+'</select>';
  else h='<div class="pk">'+o.map(x=>'<label><input type="checkbox" data-f="'+k+'" value="'+x+'"'+((v||[]).includes(x)?" checked":"")+"><span>"+H(M[x]?M[x].n:x)+"</span></label>").join("")+"</div>";
  return '<div class="fld'+(["s","d","tm","v","sub"].includes(t)?"":" full")+'"><b>'+f[1]+'</b>'+h+(er?'<div class="e">'+er+"</div>":"")+"</div>";}
@@ -55,7 +58,7 @@ function trackList(F){const R=TRACK_RULES[F.type],mx=R.max,tr=F.tracks||(F.track
  '<div class="tmeter'+(mx&&n>mx?" over":"")+'"><span>'+(mx?n+" of "+mx:n+(n===1?" track":" tracks"))+'</span><i><b style="width:'+Math.min(100,n/(mx||R.min)*100)+'%"></b></i><em>'+F.type.toUpperCase()+'</em></div>';}
 function vForm(){const f=S.form,c=CAT[f.cat],ed=f.mode==="edit",ctx=f.ctx&&byId(f.ctx);
  return '<div class="scrim s2" data-act="cancel"></div><div class="modal" role="dialog" aria-label="'+(ed?"Edit ":"New ")+c.label+'"><div class="mh"><h3 style="flex:1">'+(ed?"Edit ":"New ")+c.label.toLowerCase()+'</h3><button class="x" data-act="cancel" aria-label="Close">×</button></div>'+
- (ctx?'<div class="ctx">Will be linked to <b>'+H(ctx.title)+"</b></div>":"")+'<div class="mb">'+FS[f.cat].map(fld).join("")+'</div><div class="mf"><span style="margin-right:auto"></span><button class="btn" data-act="cancel">Cancel</button><button class="btn pri" data-act="save"'+(S.busy?" disabled":"")+'>'+(S.busy?"Saving…":ed?"Save changes":"Create "+c.label.toLowerCase())+"</button></div></div>";}
+ (ctx?'<div class="ctx">Will be linked to <b>'+H(ctx.title)+"</b></div>":"")+'<div class="mb">'+vClash(f)+FS[f.cat].map(fld).join("")+'</div><div class="mf"><span style="margin-right:auto"></span><button class="btn" data-act="cancel">Cancel</button><button class="btn pri" data-act="save"'+(S.busy?" disabled":"")+'>'+(S.busy?"Saving…":ed?"Save changes":"Create "+c.label.toLowerCase())+"</button></div></div>";}
 function blank(cat,ctx){const f={cat,mode:"new",ctx:ctx||null,people:[],title:"",errs:{}},v0=VENUES.find(v=>v[0]==="Cartier St.")||VENUES[0]||["",""],ev={date:S.ppDate||TODAY,time:"18:00",status:"Planning/Organizing",venue:v0[0],address:v0[1]};
  if(cat==="songs")Object.assign(f,{past:false,type:"Single",status:"Not Started",sub:"Not Started",tracks:[],start:TODAY,release:addD(TODAY,90),final:addD(TODAY,90-MIN_LEAD)});
  if(cat==="content")Object.assign(f,ev,{status:"Planning",type:"Video",platforms:[],account:ACCOUNTS[0],phase:S.ppPhase||"",links:[]});if(cat==="activities")Object.assign(f,ev,{type:"Recording Session",organizer:[S.user]});
@@ -71,6 +74,13 @@ function validate(f){const r=f.errs={},all=f.tracks||[],tr=all.filter(x=>x.trim(
   else if(f.release&&(!was||was.release!==f.release)&&days(TODAY,f.release)<MIN_LEAD)r.release="A release needs "+MIN_LEAD+" days to be submitted and pitched. Pick "+fmtM(addD(TODAY,MIN_LEAD))+" or later.";}
  if(f.cat==="content"){if(!f.platforms.length)r.platforms="Pick at least one platform";if(!f.account)r.account="Pick whose account this goes on";}if(f.cat==="tasks"&&!f.people.length)r.people="Assign this to someone";return!Object.keys(r).length;}
 async function save(){const f=S.form;if(S.busy)return;if(!validate(f)){render();return toast("Check the highlighted fields")}
+ /* D6.9: nobody is booked over their own unavailable time. An admin can go
+    ahead with a note, which is recorded on the entry and sent to the person. */
+ if(!clashOk(f)){render();return toast(isAdmin(S.user)?"Someone is unavailable — add a note to go ahead":"Someone on this is unavailable then")}
+ const ov=(f.unav&&f.unav.length&&String(f.ovNote||"").trim())?{list:f.unav.map(h=>h[0]),note:f.ovNote.trim()}:null;
+  /* D4.8: a venue nobody has used before is added to the Contacts book now, so
+    the gig or activity has something to point at. */
+ try{await ensureVenue(f)}catch(err){render();return toast("Couldn’t add that venue: "+(err.message||err))}
  if(f.cat==="gigs"&&f.orgKind==="Cartier St. Organized")f.orgName="Cartier St."; // S14
  const tr=(f.tracks||[]).map(x=>x.trim()).filter(Boolean),o=Object.assign({},f);["mode","errs","ctx","tracksTxt"].forEach(k=>delete o[k]);if(f.cat==="songs"){o.tracks=f.type==="Single"?[]:tr;o.start=o.start||TODAY;o.final=o.release?addD(o.release,-MIN_LEAD):"";
   if(o.past){o.status="Released";o.sub="Released";}} // empty rows are skipped; start and final submission are set for you (D6.2.2); a past release is already out (F5.2)
@@ -80,10 +90,15 @@ async function save(){const f=S.form;if(S.busy)return;if(!validate(f)){render();
  if(f.mode==="edit"){const before=live(f.id)||{people:[],organizer:[]},was=before.people.concat(before.organizer||[]),
    added=o.people.concat(o.organizer||[]).filter(p=>!was.includes(p));
   if(!await run(()=>updateEntry(o)))return;S.form=null;S.open=null;const e=live(f.id); // saved: close the form and the entry page
+    if(e&&ov)await recordOverride(e,ov.list,ov.note);await fillGigContact(e,f); // D6.9, D6.8
   if(e){notify(e,"updated **"+o.title+"**",recips(e).filter(k=>!added.includes(k)));if(added.length)notify(e,"added you to **"+o.title+"**",added);}
   return toast(CAT[f.cat].label+" updated");}
  let id;if(!await run(async()=>{id=await createEntry(o,f.ctx)}))return;S.form=null;const e=live(id),ctx=f.ctx&&byId(f.ctx);S.open=e?id:null;
- if(e){notify(e,"added you to **"+o.title+"**",o.people.concat(o.organizer||[]));if(ctx)notify(e,"linked **"+o.title+"** to **"+ctx.title+"**");}
+  if(e&&ov)await recordOverride(e,ov.list,ov.note);await fillGigContact(e,f);await seedBio(e); // D6.9, D6.8, S42
+ if(e){notify(e,"added you to **"+o.title+"**",o.people.concat(o.organizer||[]));if(ctx)notify(e,"linked **"+o.title+"** to **"+ctx.title+"**");
+  /* 1.5, D5.1.4: a task one person made for another waits on an admin. Until
+     now nothing told them it was there. */
+  if(taskPending(e))notify(e,"asked you to approve **"+o.title+"**",MK.filter(k=>hasAdmin(k)));}
  toast(CAT[f.cat].label+" created"+(f.ctx?" and linked":""));}
 async function del(id){const e=live(id);if(!e)return;if(!await run(()=>trashEntry(id)))return;S.open=null;notify(e,"deleted **"+e.title+"**");toast("“"+e.title+"” moved to Trash",id);}
 async function restore(id){const e=DB.trash.find(x=>x.id===id);if(e&&!canEdit(e,S.user))return toast("Only "+mn(e.by)+" or an admin can restore this");

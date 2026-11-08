@@ -1,0 +1,22 @@
+/* Contacts book (S38, D4.8) and the venue picker (D6.8, 1.9, 1.10)
+   HTML: js/pages/contacts.js and js/core/venue.js */
+.cbbar{margin:4px 0 12px}
+.cbq{width:100%;padding:11px 14px;border:1px solid var(--ln);border-radius:11px;background:#fff;font-size:15px}
+.cbnote{margin:2px 0 12px}
+/* one contact */
+.crow{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--ln)}
+.ctg{flex:none;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 9px;border-radius:99px;background:var(--soft);color:var(--t2);margin-top:2px}
+.crow .cb{flex:1;min-width:0}
+.crow .cb b{display:block;font-size:15.5px;font-weight:600}
+.crow .cb>span{display:block;font-size:13.5px;color:var(--t2);overflow-wrap:anywhere}
+.cthin{font-style:normal;color:var(--t3)}
+.cnote{display:block;margin-top:5px;padding:7px 10px;border-radius:8px;background:var(--soft);font-size:13px;color:var(--t2);white-space:pre-wrap}
+.crow .ca{display:flex;gap:7px;flex:none}
+/* the venue box on the Gig and Activity forms */
+.vfld input{width:100%}
+.hintline.vnew{color:#9A6200}
+@media(max-width:860px){
+ .crow{flex-wrap:wrap}
+ .crow .ca{width:100%}
+ .crow .ca .btn{flex:1}
+}
