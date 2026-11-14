@@ -152,7 +152,7 @@ const I={copy:'<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5.5 
  help:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.8-.9 1.4v.5"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>',
  lk:'<path d="M10.5 13.5a3.6 3.6 0 0 0 5.1 0l2.6-2.6a3.6 3.6 0 0 0-5.1-5.1l-1 1"/><path d="M13.5 10.5a3.6 3.6 0 0 0-5.1 0l-2.6 2.6a3.6 3.6 0 0 0 5.1 5.1l1-1"/>'};
 const TABS=[["home","Home",I.home],["notifs","Notifications",I.bell],["myday","My Day",I.sun],["cal","Calendar",I.cal],["unav","Unavailable Dates",I.busy],["contacts","Contacts",I.ppl],["admin","Admin",I.shield],["profile","My profile",I.ppl],
- ["help","How Plum Room works",I.help],["links","Label Links",I.lk],["settings","Settings",I.sl]];
+ ["help","How ATLAS works",I.help],["links","Label Links",I.lk],["settings","Settings",I.sl]];
 let S={user:null,in:false,loading:true,busy:false,noMember:null,tab:"home",q:"",cats:[],st:"",spp:"",open:null,form:null,link:null,pick:false,toast:null,sel:TODAY,calCats:[],lgErr:"",em:"",hcat:null,cq:"",cst:"",cplat:"",ctype:"",fold:{},allTasks:false,dview:null,search:false,sflt:false,cflt:false,usel:TODAY,uform:null,ucats:[],mode:"admin",slDraft:"",sfin:false,calFin:false,crel:""};
 /* 1.1: which hat the person had on last time. It is a per-browser convenience,
    so it lives in the browser and nowhere else; if it cannot be read, admin. */

@@ -10,8 +10,11 @@ const CAT={songs:{tag:"RELEASE",label:"Release",pl:"Releases",c:"#5B5BD6",t:"#EE
 const ORDER=Object.keys(CAT);
 const REL_OK={songs:["content","activities","gigs","tasks"],content:["songs","activities","gigs","tasks"],activities:["songs","content","gigs","tasks"],gigs:["songs","content","activities","tasks"],tasks:["songs","content","activities","gigs"]}; // gigs↔songs is narrowed to Release/Listening Party by relOk() (S13)
 const SONG_STATUS={"Not Started":[],"In Production":["Conceptualizing","Producing Beat","Writing Lyrics","To Record","Mixing Vocals","Mastering Track"],
- "For Submission":["Finalizing Metadata","Finalizing Visuals","Planning Promotions","Finalizing Track Masterfile Document"],
- "Submitted/Pitching":["ONErpm Priority Pitched","Pitched for Spotify Playlist (SFA)","Pitched for ONErpm Playlist (Dashboard)"],
+ /* The step names are Cartier St.'s own. The two "Submitted to …" steps are the
+    hand-offs the approval flow turns on: approve.js matches them by exact text,
+    so renaming or removing one takes the Cartier St. review out of reach. */
+ "For Submission":["Finalizing Metadata","Finalizing Visuals","Planning Promotions","Finalizing Track Masterfile Document","Submitted to Cartier St."],
+ "Submitted/Pitching":["Submitted to ONErpm","ONErpm Priority Pitched","Pitched for Spotify Playlist (SFA)","Pitched for ONErpm Playlist (Dashboard)"],
  "Released":["Waiting on Release Day","Initial Press Release Emailed","Released"],"Limbo":["Shelved","Next Release"]};
 const EVT_STATUS=["Planning/Organizing","Confirmed","Postponed","Limbo","Cancelled","Completed"]; // activities (S23)
 const GIG_STATUS=["Inquiry","Planning/Organizing","Confirmed","Awaiting Payment","Postponed","Limbo","Cancelled","Completed"]; // S12; Awaiting Payment is for Booked gigs only
@@ -121,17 +124,11 @@ const EG={
  "rc:gigChange":"e.g. Load in earlier — we lost the soundcheck.",
  "rc:photos":"https://drive.google.com/…"};
 
-/* 1.7c: each platform box carries the question ONErpm's Priority Pitch form
-   asks, so an artist answers the way ONErpm expects and the plan copies across
-   without rewriting. ⚠ PLACEHOLDER WORDING — replace each question below with
-   the exact text from the ONErpm form once Peter sends it (decision 5). */
-const PP_Q={
- dsps:"Why should the DSPs get behind this release?",
- spotify:"What makes this right for Spotify's editorial playlists?",
- apple:"What should Apple Music know about this release?",
- tiktok:"What is the hook or trend this could travel on?",
- meta:"What is the plan for Facebook and Instagram?",
- youtube:"What is going up on YouTube, and when?"};
+/* 1.7c: the Platforms boxes are labelled with the platform and nothing more.
+   The real ONErpm questions live in Song Details and in Blurb, keywords and
+   bio; the Priority Pitch form asks nothing per platform, so these boxes carry
+   no question. What guides the artist is the gray example below, which is ours
+   and reads "e.g." so it is never mistaken for ONErpm's wording. */
 Object.assign(EG,{
  "ppp:dsps":"e.g. First single from the EP, with a regional push behind it.",
  "ppp:spotify":"e.g. Fits Tatak Pinoy and Chill OPM — midtempo R&B, Tagalog vocal.",

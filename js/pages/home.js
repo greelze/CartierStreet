@@ -20,13 +20,19 @@ const whenTxt=d=>d===TODAY?"today":d===addD(TODAY,1)?"tomorrow":fmtS(d);
 
 function vHome(){if(S.hcat)return vCatPage(S.hcat);const u=S.user;
  return '<div class="ph"><div><p class="mut">'+fmtL(TODAY)+'</p><h1>Hello, '+H(mn(u))+'</h1><p class="mut lead">Your music, gigs and plans, all in one place.</p></div><div class="acts">'+searchBtn()+addBtn("Add new")+'</div></div>'+
+ vCountdown()+ // 1.2: above the cards, so a phone shows it without scrolling
  '<div class="cards">'+HUB.map(([c,label,icon,desc])=>{const open=catItems(c).filter(e=>!isFin(e)),nx=nextUp(open);
   return bigCard({act:"hcat",data:' data-c="'+c+'"',icon,title:label,desc,color:CAT[c].c,count:open.length,unit:c==="songs"?"in progress":"open",
-   next:nx?"Next: "+H(nx.title)+" · "+whenTxt(nextOcc(nx).date):"Nothing coming up"});}).join("")+'</div>'+vCountdown()+vRecent();}
+   next:nx?"Next: "+H(nx.title)+" · "+whenTxt(nextOcc(nx).date):"Nothing coming up"});}).join("")+'</div>'+vRecent();}
 
-/* "Countdown til your next release" — shows once a release is Submitted/Pitching (D1.0.6, W6) */
-/* W6: it starts at Submitted to ONErpm, the first Submitted/Pitching step. A past release is never counted down (F5.2). */
-function vCountdown(){const l=visible(S.user).filter(e=>e.cat==="songs"&&e.status==="Submitted/Pitching"&&!isPast(e)&&e.release&&e.release>=TODAY)
+/* "Countdown til your next release" (1.2, D1.0.6, M1.0.6, R5)
+   It sits at the very top of Home, under the greeting and above the category
+   cards, so it shows on a phone without scrolling — it is the one thing on this
+   page meant to be looked forward to rather than worked through.
+   It starts the moment Cartier St. approves the release, which is earlier than
+   the old Submitted/Pitching trigger and is the point the release date stops
+   moving about. A past release is never counted down (F5.2). */
+function vCountdown(){const l=visible(S.user).filter(e=>e.cat==="songs"&&isApproved(e)&&!isPast(e)&&e.release&&e.release>=TODAY)
   .sort((a,b)=>a.release.localeCompare(b.release));
  if(!l.length)return"";const e=l[0],n=days(TODAY,e.release);
  return sh("Countdown til your next release")+'<button class="cdown" data-act="open" data-id="'+e.id+'"><span class="n">'+(n===0?"Today":n)+'</span><span class="b"><b>'+H(e.title)+'</b><span>'+(n===0?"Out today":(n===1?"1 day to go":n+" days to go")+" · "+fmtM(e.release))+'</span></span>'+ctag("songs")+'</button>';}

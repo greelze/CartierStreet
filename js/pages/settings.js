@@ -3,7 +3,7 @@
    HTML: built by vSettings() below. CSS: css/pages/settings.css (shared styles: css/base.css). */
 const SOCIALS=[["spotify","Spotify"],["apple_music","Apple Music"],["youtube","YouTube"],["facebook","Facebook"],["instagram","Instagram"],["tiktok","TikTok"]];
 Object.assign(S,{elinks:null,ldraft:{}}); // which artist's links are being edited, and the typed values
-function vSettings(){const u=S.user,l=visible(u);return '<div class="ph"><div><h1>Settings</h1><p class="mut lead">Your profile, links and deleted items.</p></div><div class="acts">'+searchBtn()+'</div></div><div class="roombar"><div class="mk">LOGO</div><span><b>Cartier St.</b><i>Plum Room</i></span></div><div class="prof">'+av(u,64)+'<div><h3 style="font-size:22px">'+H(M[u].n)+'</h3><p class="mut">'+(isAdmin(u)?"Admin":isArtist(u)?"Artist":"Member")+' · Cartier St.</p></div></div>'+
+function vSettings(){const u=S.user,l=visible(u);return '<div class="ph"><div><h1>Settings</h1><p class="mut lead">Your profile, links and deleted items.</p></div><div class="acts">'+searchBtn()+'</div></div><div class="roombar">'+LOGO("black-bg")+'</div><div class="prof">'+av(u,64)+'<div><h3 style="font-size:22px">'+H(M[u].n)+'</h3><p class="mut">'+(isAdmin(u)?"Admin":isArtist(u)?"Artist":"Member")+' · Cartier St.</p></div></div>'+
  sh("Visible to you")+ORDER.map(k=>'<div class="kv"><span>'+CAT[k].pl+'</span><b>'+l.filter(e=>e.cat===k).length+'</b></div>').join("")+'<div class="kv"><span>Total</span><b>'+l.length+'</b></div>'+
   '<p class="mut note">'+(isAdmin(u)?"Admins see every record in Cartier St.":isMember(u)?"You can follow every release, and see the activities and tasks you are on.":"You only see entries you’re assigned to or involved in.")+'</p>'+
  sh("Trash",DB.trash.length||"Empty")+DB.trash.map(e=>'<div class="tr">'+ctag(e.cat)+'<span class="b"><b>'+H(e.title)+'</b><br><span class="mut" style="font-size:13px">'+H(e.eid)+' · '+Math.max(0,30-Math.floor((Date.now()-Date.parse(e.deletedAt))/864e5))+' days left</span></span>'+(canEdit(e,u)?'<button class="btn sm" data-act="restore" data-id="'+e.id+'">Restore</button><button class="btn sm dan" data-act="purge" data-id="'+e.id+'">Delete</button>':'<span class="mut ronly">Only '+H(mn(e.by))+' or an admin can restore this</span>')+'</div>').join("")+
@@ -13,7 +13,7 @@ function vSettings(){const u=S.user,l=visible(u);return '<div class="ph"><div><h
    (bothHats(u)?sh("Your view")+ // 1.1
   '<div class="modesw" role="radiogroup" aria-label="Which view">'+
    [["admin","Admin","Everything, including the Approvals inbox and the Contacts book."],
-    ["artist","Artist","Plum Room the way the artists see it — your own work, and nothing of anyone else’s."]]
+    ["artist","Artist","ATLAS the way the artists see it — your own work, and nothing of anyone else’s."]]
    .map(([k,name,what])=>'<button class="modeb'+(S.mode===k?" on":"")+'" role="radio" aria-checked="'+(S.mode===k)+'" data-act="mode" data-m="'+k+'"><b>'+name+'</b><span>'+what+'</span></button>').join("")+
   '</div><p class="mut note">This changes what you are shown, not what you are allowed to do. Cartier St. still knows you as an admin, so you can switch back at any time.</p>':"")+
  sh("Pages")+ // S42, S43, S48
@@ -21,7 +21,7 @@ function vSettings(){const u=S.user,l=visible(u);return '<div class="ph"><div><h
   (filled((M[u]||{}).bio)?"Filled in":"Empty")+' '+sv(I.arr)+'</b></div>'+
  '<div class="kv kvgo" data-act="links"><span>Label Links<i>Resources, Tracks and Showmixes</i></span><b>'+
   LL.filter(l=>(LABEL_FOLDERS[l[0]]||{}).url).length+' of 3 '+sv(I.arr)+'</b></div>'+
- '<div class="kv kvgo" data-act="help"><span>How Plum Room works<i>What everything here means, in one page</i></span><b>'+sv(I.arr)+'</b></div>'+
+ '<div class="kv kvgo" data-act="help"><span>How ATLAS works<i>What everything here means, in one page</i></span><b>'+sv(I.arr)+'</b></div>'+
  vArtistLinks()+'<div style="margin-top:30px;display:flex;gap:10px"><button class="btn dan" data-act="logout">Log out</button><button class="btn" data-act="reload">Refresh data</button></div>';}
 
 /* ---- artist links ---- */
@@ -54,7 +54,7 @@ PAGE_ACTIONS.mode=d=>{const m=d.m==="artist"?"artist":"admin";
  S.mode=m;try{localStorage.setItem("cs-mode",m)}catch(e){}
  S.open=null;S.search=false;S.prof=null;
  if(m==="artist"&&["admin","contacts"].includes(S.tab))S.tab="settings";
- toast(m==="artist"?"Looking at Plum Room the way an artist sees it":"Back to the admin view");
+ toast(m==="artist"?"Looking at ATLAS the way an artist sees it":"Back to the admin view");
  return true};
 PAGE_ACTIONS.ledit=d=>{const l=d.k==="label"?LABEL_LINKS:(M[d.k].links||{});S.elinks=d.k;S.ldraft={};SOCIALS.forEach(([k])=>S.ldraft[k]=l[k]||"")};
 PAGE_ACTIONS.lcancel=()=>{S.elinks=null;S.ldraft={}};

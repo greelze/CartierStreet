@@ -44,7 +44,11 @@ function ppPlatforms(e,ed){
  /* 1.7c: the label is the question ONErpm's Priority Pitch form asks, so the
     answer can be copied straight across without being rewritten. */
  return '<p class="rdnote">Fill in only the platforms this release is actually going to use. Each box asks what ONErpm asks.</p><div class="rdg">'+
-  PP_PLATFORMS.map(p=>rdBox([p[0],p[1]+" — "+PP_Q[p[0]],"a",0],ppPlat(e,p[0]),'data-ppp="'+p[0]+'"',ed)).join("")+'</div>';}
+  /* 1.7c: each box is labelled with its platform and nothing else. The ONErpm
+     Priority Pitch form does not ask a question per platform, so inventing one
+     would put words in ONErpm's mouth. The gray example in each empty box is
+     ours and says so with "e.g." — that is what tells the artist what to write. */
+  PP_PLATFORMS.map(p=>rdBox([p[0],p[1],"a",0],ppPlat(e,p[0]),'data-ppp="'+p[0]+'"',ed)).join("")+'</div>';}
 
 /* ---- the promotional calendar: every row is a real Content entry (W8, S4) ---- */
 function ppCalendar(e,ed){const win=PHASE_WIN(e.release);

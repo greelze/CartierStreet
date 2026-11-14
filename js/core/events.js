@@ -63,7 +63,7 @@ document.addEventListener("change",e=>{const t=e.target,f=t.dataset.f,F=S.form;
  F[f]=t.value;if(f==="venue")venuePicked(F,t.value);if(f==="type"&&F.cat==="gigs")F.typeNote=GIG_TYPES.find(g=>g[1].includes(t.value))[0];
  if(f==="status"&&F.cat==="songs")F.sub=SONG_STATUS[t.value][0]||t.value;
  if(f==="type"&&F.cat==="activities")F.ctx=null; // S27: a different type asks a different question
- if(["type","status","venue"].includes(f))render()});
+ if(["type","status","venue","owner"].includes(f))render()}); // owner: 1.7a, the line under it changes
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.dataset&&e.target.dataset.trk!=null){e.preventDefault();const a=$('[data-act="trkadd"]');a&&!a.disabled&&a.click();return} // Enter in a track = next track
  if(e.key==="Enter"&&(e.target.id==="em"||e.target.id==="pw"))$('[data-act="login"]').click();
  /* S4: Enter in a Promotional Calendar box adds the row, the way a list works */

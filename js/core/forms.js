@@ -56,9 +56,30 @@ function trackList(F){const R=TRACK_RULES[F.type],mx=R.max,tr=F.tracks||(F.track
   '<button type="button" class="tdel" data-act="trkdel" data-i="'+i+'" aria-label="Remove track '+(i+1)+'">×</button></div>').join("")+
  '<button type="button" class="tadd" data-act="trkadd"'+(full?" disabled":"")+'>'+(full?"That’s the most "+(F.type==="EP"?"an EP":"an album")+" can have ("+mx+")":"+ Add track")+'</button>'+
  '<div class="tmeter'+(mx&&n>mx?" over":"")+'"><span>'+(mx?n+" of "+mx:n+(n===1?" track":" tracks"))+'</span><i><b style="width:'+Math.min(100,n/(mx||R.min)*100)+'%"></b></i><em>'+F.type.toUpperCase()+'</em></div>';}
+/* 1.7a: who the entry belongs to. Editing stays with the owner and admins, as
+   decided — what was missing was any way for an admin to make somebody else the
+   owner, so a release Jerome typed in was always Jerome's and the artist got
+   "View only". Setting the owner here means the row is born to them.
+   Only an admin sees this, and only on a new entry.
+   A release can belong to an artist, or to whoever is creating it — an admin may
+   own what they just made whether or not they are an artist themselves. Without
+   that last part an admin who is not an artist is missing from their own
+   dropdown, so the list shows somebody else while the entry quietly saves to the
+   admin, which is worse than either answer. */
+const ownerList=cat=>{const l=cat==="songs"?MK.filter(k=>isArtist(k)):MK.slice();
+ if(MK.includes(S.user)&&!l.includes(S.user))l.unshift(S.user);
+ return l;};
+function vOwnerField(F){if(F.mode==="edit"||!isAdmin(S.user))return"";
+ const l=ownerList(F.cat);if(l.length<2)return"";
+ const who=l.includes(F.owner)?F.owner:S.user;
+ return '<div class="fld full"><b>Owner</b><select data-f="owner">'+
+  l.map(k=>'<option value="'+k+'"'+(k===who?" selected":"")+'>'+H(mn(k))+(k===S.user?" (you)":"")+'</option>').join("")+'</select>'+
+  '<p class="hintline">'+(who===S.user?"You will own this and can fill it in."
+    :H(mn(who))+" will own this and can fill it in. You can still edit it, as an admin.")+'</p></div>';}
+
 function vForm(){const f=S.form,c=CAT[f.cat],ed=f.mode==="edit",ctx=f.ctx&&byId(f.ctx);
  return '<div class="scrim s2" data-act="cancel"></div><div class="modal" role="dialog" aria-label="'+(ed?"Edit ":"New ")+c.label+'"><div class="mh"><h3 style="flex:1">'+(ed?"Edit ":"New ")+c.label.toLowerCase()+'</h3><button class="x" data-act="cancel" aria-label="Close">×</button></div>'+
- (ctx?'<div class="ctx">Will be linked to <b>'+H(ctx.title)+"</b></div>":"")+'<div class="mb">'+vClash(f)+FS[f.cat].map(fld).join("")+'</div><div class="mf"><span style="margin-right:auto"></span><button class="btn" data-act="cancel">Cancel</button><button class="btn pri" data-act="save"'+(S.busy?" disabled":"")+'>'+(S.busy?"Saving…":ed?"Save changes":"Create "+c.label.toLowerCase())+"</button></div></div>";}
+ (ctx?'<div class="ctx">Will be linked to <b>'+H(ctx.title)+"</b></div>":"")+'<div class="mb">'+vClash(f)+vOwnerField(f)+FS[f.cat].map(fld).join("")+'</div><div class="mf"><span style="margin-right:auto"></span><button class="btn" data-act="cancel">Cancel</button><button class="btn pri" data-act="save"'+(S.busy?" disabled":"")+'>'+(S.busy?"Saving…":ed?"Save changes":"Create "+c.label.toLowerCase())+"</button></div></div>";}
 function blank(cat,ctx){const f={cat,mode:"new",ctx:ctx||null,people:[],title:"",errs:{}},v0=VENUES.find(v=>v[0]==="Cartier St.")||VENUES[0]||["",""],ev={date:S.ppDate||TODAY,time:"18:00",status:"Planning/Organizing",venue:v0[0],address:v0[1]};
  if(cat==="songs")Object.assign(f,{past:false,type:"Single",status:"Not Started",sub:"Not Started",tracks:[],start:TODAY,release:addD(TODAY,90),final:addD(TODAY,90-MIN_LEAD)});
  if(cat==="content")Object.assign(f,ev,{status:"Planning",type:"Video",platforms:[],account:ACCOUNTS[0],phase:S.ppPhase||"",links:[]});if(cat==="activities")Object.assign(f,ev,{type:"Recording Session",organizer:[S.user]});

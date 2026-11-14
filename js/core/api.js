@@ -158,8 +158,13 @@ async function saveRD(id,key,val,pos){
  else must(await db.from("song_tracks").update({[RDT_COL[key]]:val===""?null:val}).eq("song_id",id).eq("position",pos));}
 
 /* ---- writes ---- */
+/* 1.7a: an admin may hand a new entry to somebody else, so it is born theirs and
+   they can fill it in. Anybody else owns what they make, whatever is sent — and
+   the entries_insert policy enforces the same rule at the database, so a forged
+   owner is refused there too rather than only here. */
+const ownerOf=o=>(isAdmin(S.user)&&o.owner&&M[o.owner])?o.owner:S.user;
 async function createEntry(o,ctx){let row,err;
- for(let i=0;i<10;i++){const r=await db.from("entries").insert({eid:nextEid(o.cat,i),category:o.cat,title:o.title.trim(),status:o.status,created_by:MID[S.user]}).select().single();
+ for(let i=0;i<10;i++){const r=await db.from("entries").insert({eid:nextEid(o.cat,i),category:o.cat,title:o.title.trim(),status:o.status,created_by:MID[ownerOf(o)]}).select().single();
   row=r.data;err=r.error;if(!err||err.code!=="23505")break;} // 23505 = that ID was just taken; try the next one
  if(err)throw err;
  try{must(await db.from(o.cat).insert(Object.assign({entry_id:row.id},subRow(o))));
